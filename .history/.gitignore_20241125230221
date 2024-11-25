@@ -1,0 +1,9 @@
+# Ignore all files except for specific ones
+*.log
+*.tmp
+*.bak
+bin/
+obj/
+
+# Except the program.cs file
+!program.cs
