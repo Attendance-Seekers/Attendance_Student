@@ -1,10 +1,11 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace SchoolManagement.Models
+namespace Student.Models
 {
-    public class Student
+    public class Student : IdentityUser
     {
         public string Status { get; set; }
         public int ClassId { get; set; }
