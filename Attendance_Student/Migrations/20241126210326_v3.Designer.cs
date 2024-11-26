@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    partial class AttendanceStudentContextModelSnapshot : ModelSnapshot
+    [Migration("20241126210326_v3")]
+    partial class v3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,12 @@ namespace Attendance_Student.Migrations
                     b.Property<int>("Class_Size")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TeacherId")
+                        .HasColumnType("int");
+
                     b.HasKey("Class_Id");
+
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("Classes");
 
@@ -225,20 +233,20 @@ namespace Attendance_Student.Migrations
                         new
                         {
                             timeTable_Id = 1,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6233),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6237)
+                            CreatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2589),
+                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2591)
                         },
                         new
                         {
                             timeTable_Id = 2,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6239),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6239)
+                            CreatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2593),
+                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2593)
                         },
                         new
                         {
                             timeTable_Id = 3,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6241),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6241)
+                            CreatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2594),
+                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 3, 25, 725, DateTimeKind.Utc).AddTicks(2595)
                         });
                 });
 
@@ -469,11 +477,11 @@ namespace Attendance_Student.Migrations
                         {
                             Id = "1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "46f2ce7e-12ab-42c1-b46c-a451796f9b91",
+                            ConcurrencyStamp = "fb3352a5-9750-4115-bd91-7cf8e54ba4b8",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2db44203-3ea7-4791-80a8-47d570b7428c",
+                            SecurityStamp = "9eda56b8-97c2-4182-a1ef-e7c8c2201472",
                             TwoFactorEnabled = false,
                             UserName = "student1",
                             Class_Id = 1,
@@ -483,11 +491,11 @@ namespace Attendance_Student.Migrations
                         {
                             Id = "2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "91823605-f71a-4aff-99b2-f47289e45c97",
+                            ConcurrencyStamp = "8b804d5e-e1ec-48de-bfc4-5de6fd6ff2e7",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "10abaf5e-70dd-4ddb-b13c-cdeacd807c5f",
+                            SecurityStamp = "5d9d23ea-2091-4b23-b390-3b0b96c0a4d0",
                             TwoFactorEnabled = false,
                             UserName = "student2",
                             Class_Id = 2,
@@ -497,16 +505,23 @@ namespace Attendance_Student.Migrations
                         {
                             Id = "3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "bed8e469-59f0-40a5-b805-bf19f81f8d08",
+                            ConcurrencyStamp = "8ff914cb-bd83-4152-852f-e41ab34d6508",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0cfb4ae7-0445-4fb4-9222-0703d65a87a9",
+                            SecurityStamp = "a52e488d-180b-45f8-a507-34f828f9727c",
                             TwoFactorEnabled = false,
                             UserName = "student3",
                             Class_Id = 3,
                             Status = "Inactive"
                         });
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Class", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.Teacher", null)
+                        .WithMany("Classes")
+                        .HasForeignKey("TeacherId");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
@@ -624,6 +639,11 @@ namespace Attendance_Student.Migrations
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
                 {
                     b.Navigation("teachers");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
+                {
+                    b.Navigation("Classes");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
