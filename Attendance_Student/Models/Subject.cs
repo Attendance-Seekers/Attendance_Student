@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Attendance_Student.Models
 {
@@ -13,6 +14,7 @@ namespace Attendance_Student.Models
         public int subject_Duration { get; set; }
 
         public virtual List<Teacher> teachers { get; set; } = new List<Teacher>();
+        public virtual List<SubjectDaySchedule> daysScheduled { get; set; } = new List<SubjectDaySchedule>();
 
 
     }

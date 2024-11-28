@@ -612,3 +612,4 @@ H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\refint\Atten
 H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\Attendance_Student.pdb
 H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\Attendance_Student.genruntimeconfig.cache
 H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\ref\Attendance_Student.dll
+D:\projects_GitHub\Attendance_Student\Attendance_Student\bin\Debug\net8.0\Swashbuckle.AspNetCore.Annotations.dll

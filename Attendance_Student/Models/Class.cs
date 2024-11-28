@@ -15,7 +15,6 @@ namespace Attendance_Student.Models
         public string Class_Name { get; set; }
         public int Class_Size { get; set; } // max no of student
 
-      
         public virtual TimeTable timeTable { get; set; } // contain subjects which have teacher list
         public virtual List<Student> students { get; set; } = new List<Student>();
     }

@@ -27,7 +27,7 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(200, "Successfully retrieved the list of Classes", typeof(List<ClassDTO>))]
         [SwaggerResponse(404, "No classes found")]
         [Produces("application/json")]
-       
+
         public IActionResult selectAllClasses()
         {
             //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
@@ -62,14 +62,14 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(200, "Successfully retrieved the class", typeof(ClassDTO))]
         [SwaggerResponse(404, "class not found")]
         [Produces("application/json")]
-      
+
 
         public IActionResult selectClassById(int id)
         {
-            
+
             Class _class = classRepo.selectById(id);
 
-            
+
             if (_class == null) return NotFound();
             else
             {
@@ -103,11 +103,11 @@ namespace Attendance_Student.Controllers
             }
             else
             {
-                
+
                 Class newClass = new Class()
                 {
-                    Class_Name= _class.Class_Name,
-                    Class_Size= _class.Class_Size
+                    Class_Name = _class.Class_Name,
+                    Class_Size = _class.Class_Size
 
                 };
 
@@ -118,7 +118,7 @@ namespace Attendance_Student.Controllers
 
                 //Console.WriteLine( "i have been added sucessfully" );
                 classRepo.save();
-                return CreatedAtAction("selectClassById", new { id = newClass.Class_Id },_class);
+                return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _class);
                 //return Ok();
 
             }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    [Migration("20241126212608_v5")]
-    partial class v5
+    [Migration("20241128072501_v3")]
+    partial class v3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,6 +27,31 @@ namespace Attendance_Student.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Attendance_Student.Models.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Feedback")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TimeTableId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("dateAttendance")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TimeTableId");
+
+                    b.ToTable("Attendances");
+                });
 
             modelBuilder.Entity("Attendance_Student.Models.Class", b =>
                 {
@@ -47,26 +72,28 @@ namespace Attendance_Student.Migrations
                     b.HasKey("Class_Id");
 
                     b.ToTable("Classes");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Class_Id = 1,
-                            Class_Name = "Class A",
-                            Class_Size = 30
-                        },
-                        new
-                        {
-                            Class_Id = 2,
-                            Class_Name = "Class B",
-                            Class_Size = 25
-                        },
-                        new
-                        {
-                            Class_Id = 3,
-                            Class_Name = "Class C",
-                            Class_Size = 20
-                        });
+            modelBuilder.Entity("Attendance_Student.Models.DaySchedule", b =>
+                {
+                    b.Property<int>("DayScheduleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DayScheduleId"));
+
+                    b.Property<string>("Dayname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TimeTable_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("DayScheduleId");
+
+                    b.HasIndex("TimeTable_id");
+
+                    b.ToTable("DaySchedules");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Department", b =>
@@ -85,23 +112,25 @@ namespace Attendance_Student.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Computer Science"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Mechanical Engineering"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Electrical Engineering"
-                        });
+            modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
+                {
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AttendanceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("StudentId", "AttendanceId");
+
+                    b.HasIndex("AttendanceId");
+
+                    b.ToTable("StudentAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
@@ -120,129 +149,70 @@ namespace Attendance_Student.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("timeTable_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("subject_Id");
 
-                    b.HasIndex("timeTable_Id");
-
                     b.ToTable("Subjects");
-
-                    b.HasData(
-                        new
-                        {
-                            subject_Id = 1,
-                            subject_Duration = 60,
-                            subject_Name = "Mathematics"
-                        },
-                        new
-                        {
-                            subject_Id = 2,
-                            subject_Duration = 60,
-                            subject_Name = "Physics"
-                        },
-                        new
-                        {
-                            subject_Id = 3,
-                            subject_Duration = 60,
-                            subject_Name = "Chemistry"
-                        });
                 });
 
-            modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
+            modelBuilder.Entity("Attendance_Student.Models.SubjectDaySchedule", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("DeptId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("DayScheduleId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("DeptId");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
-                    b.HasIndex("SubjectId");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
-                    b.ToTable("Teachers");
+                    b.HasKey("SubjectId", "DayScheduleId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "123 Street, City",
-                            DeptId = 1,
-                            Name = "John Smith",
-                            SubjectId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "456 Avenue, City",
-                            DeptId = 2,
-                            Name = "Alice Johnson",
-                            SubjectId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Address = "789 Boulevard, City",
-                            DeptId = 3,
-                            Name = "Robert Brown",
-                            SubjectId = 3
-                        });
+                    b.HasIndex("DayScheduleId");
+
+                    b.ToTable("SubjectDaySchedule");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
+                {
+                    b.Property<string>("TeacherId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AttendanceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("RecordDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("TeacherId", "AttendanceId");
+
+                    b.HasIndex("AttendanceId");
+
+                    b.ToTable("TeacherAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
-                    b.Property<int>("timeTable_Id")
+                    b.Property<int>("TimeTableId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TimeTableId"));
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("class_id")
+                        .HasColumnType("int");
 
-                    b.HasKey("timeTable_Id");
+                    b.HasKey("TimeTableId");
+
+                    b.HasIndex("class_id")
+                        .IsUnique();
 
                     b.ToTable("TimeTables");
-
-                    b.HasData(
-                        new
-                        {
-                            timeTable_Id = 1,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6233),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6237)
-                        },
-                        new
-                        {
-                            timeTable_Id = 2,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6239),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6239)
-                        },
-                        new
-                        {
-                            timeTable_Id = 3,
-                            CreatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6241),
-                            LastUpdatedDate = new DateTime(2024, 11, 26, 21, 26, 7, 479, DateTimeKind.Utc).AddTicks(6241)
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -452,97 +422,192 @@ namespace Attendance_Student.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Attendance_Student.Models.Admin", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.HasDiscriminator().HasValue("Admin");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Parent", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("fullname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.ToTable("AspNetUsers", t =>
+                        {
+                            t.Property("address")
+                                .HasColumnName("Parent_address");
+
+                            t.Property("age")
+                                .HasColumnName("Parent_age");
+                        });
+
+                    b.HasDiscriminator().HasValue("Parent");
+                });
+
             modelBuilder.Entity("Attendance_Student.Models.Student", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int>("Class_Id")
+                    b.Property<int>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("ParentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Student_fullname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("Class_Id");
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("AspNetUsers", t =>
+                        {
+                            t.Property("age")
+                                .HasColumnName("Student_age");
+                        });
 
                     b.HasDiscriminator().HasValue("Student");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "46f2ce7e-12ab-42c1-b46c-a451796f9b91",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "2db44203-3ea7-4791-80a8-47d570b7428c",
-                            TwoFactorEnabled = false,
-                            UserName = "student1",
-                            Class_Id = 1,
-                            Status = "Active"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "91823605-f71a-4aff-99b2-f47289e45c97",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "10abaf5e-70dd-4ddb-b13c-cdeacd807c5f",
-                            TwoFactorEnabled = false,
-                            UserName = "student2",
-                            Class_Id = 2,
-                            Status = "Active"
-                        },
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "bed8e469-59f0-40a5-b805-bf19f81f8d08",
-                            EmailConfirmed = false,
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "0cfb4ae7-0445-4fb4-9222-0703d65a87a9",
-                            TwoFactorEnabled = false,
-                            UserName = "student3",
-                            Class_Id = 3,
-                            Status = "Inactive"
-                        });
-                });
-
-            modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
-                {
-                    b.HasOne("Attendance_Student.Models.TimeTable", null)
-                        .WithMany("subjects")
-                        .HasForeignKey("timeTable_Id");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.Department", "Department")
-                        .WithMany("Teachers")
-                        .HasForeignKey("DeptId")
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<int>("DeptId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Teacher_fullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("address")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("age")
+                        .HasColumnType("int");
+
+                    b.HasIndex("DeptId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasDiscriminator().HasValue("Teacher");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Attendance", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.TimeTable", "timeTable")
+                        .WithMany()
+                        .HasForeignKey("TimeTableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Attendance_Student.Models.Subject", "Subject")
-                        .WithMany("teachers")
+                    b.Navigation("timeTable");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.DaySchedule", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.TimeTable", "TimeTable")
+                        .WithMany("DaySchedules")
+                        .HasForeignKey("TimeTable_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TimeTable");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.Attendance", "Attendance")
+                        .WithMany("StudentsAttendance")
+                        .HasForeignKey("AttendanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Attendance_Student.Models.Student", "Student")
+                        .WithMany("viewAttendances")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attendance");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.SubjectDaySchedule", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.DaySchedule", "daySchedule")
+                        .WithMany("subjectsScheduled")
+                        .HasForeignKey("DayScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Attendance_Student.Models.Subject", "subject")
+                        .WithMany("daysScheduled")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("daySchedule");
 
-                    b.Navigation("Subject");
+                    b.Navigation("subject");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.Attendance", "Attendance")
+                        .WithMany("TeachersAttendance")
+                        .HasForeignKey("AttendanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Attendance_Student.Models.Teacher", "Teacher")
+                        .WithMany("AttendanceRecords")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attendance");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
                     b.HasOne("Attendance_Student.Models.Class", "_class")
                         .WithOne("timeTable")
-                        .HasForeignKey("Attendance_Student.Models.TimeTable", "timeTable_Id")
+                        .HasForeignKey("Attendance_Student.Models.TimeTable", "class_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -604,11 +669,45 @@ namespace Attendance_Student.Migrations
                 {
                     b.HasOne("Attendance_Student.Models.Class", "_class")
                         .WithMany("students")
-                        .HasForeignKey("Class_Id")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Attendance_Student.Models.Parent", "Parent")
+                        .WithMany("Students")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
                     b.Navigation("_class");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
+                {
+                    b.HasOne("Attendance_Student.Models.Department", "Department")
+                        .WithMany("Teachers")
+                        .HasForeignKey("DeptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Attendance_Student.Models.Subject", "Subject")
+                        .WithMany("teachers")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Attendance", b =>
+                {
+                    b.Navigation("StudentsAttendance");
+
+                    b.Navigation("TeachersAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Class", b =>
@@ -619,6 +718,11 @@ namespace Attendance_Student.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Attendance_Student.Models.DaySchedule", b =>
+                {
+                    b.Navigation("subjectsScheduled");
+                });
+
             modelBuilder.Entity("Attendance_Student.Models.Department", b =>
                 {
                     b.Navigation("Teachers");
@@ -626,12 +730,29 @@ namespace Attendance_Student.Migrations
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
                 {
+                    b.Navigation("daysScheduled");
+
                     b.Navigation("teachers");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
-                    b.Navigation("subjects");
+                    b.Navigation("DaySchedules");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Parent", b =>
+                {
+                    b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Student", b =>
+                {
+                    b.Navigation("viewAttendances");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
+                {
+                    b.Navigation("AttendanceRecords");
                 });
 #pragma warning restore 612, 618
         }
