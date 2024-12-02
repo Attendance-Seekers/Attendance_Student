@@ -27,10 +27,16 @@ namespace Attendance_Student.Models
         {
             base.OnModelCreating(modelBuilder);
 
+
             modelBuilder.Entity<StudentAttendance>().HasKey(s => new { s.StudentId, s.AttendanceId });
             modelBuilder.Entity<TeacherAttendance>().HasKey(t => new { t.TeacherId, t.AttendanceId });
             modelBuilder.Entity<SubjectDaySchedule>().HasKey(d => new { d.SubjectId, d.DayScheduleId });
-
+            // Disable cascading delete for all relationships
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes()
+                .SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.NoAction;
+            }
 
         }
 

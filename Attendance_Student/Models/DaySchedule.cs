@@ -9,9 +9,9 @@ namespace Attendance_Student.Models
         public int DayScheduleId { get; set; }
         [Required]
         public string Dayname { get; set; }
-        [ForeignKey("TimeTable")]
+        [ForeignKey("timeTable")]
         public int TimeTable_id { get; set; }
-        public virtual TimeTable TimeTable { get; set; }
+        public virtual TimeTable timeTable { get; set; }
         public virtual List<SubjectDaySchedule> subjectsScheduled { get; set; } = new List<SubjectDaySchedule>();// contain teachers
     }
 }

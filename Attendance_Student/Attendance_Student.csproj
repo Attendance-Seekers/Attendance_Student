@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTOs\Subject\" />
     <Folder Include="UnitOfWorks\" />
   </ItemGroup>
 

@@ -526,7 +526,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.TimeTable", "timeTable")
                         .WithMany()
                         .HasForeignKey("TimeTableId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("timeTable");
@@ -534,32 +534,32 @@ namespace Attendance_Student.Migrations
 
             modelBuilder.Entity("Attendance_Student.Models.DaySchedule", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.TimeTable", "TimeTable")
+                    b.HasOne("Attendance_Student.Models.TimeTable", "timeTable")
                         .WithMany("DaySchedules")
                         .HasForeignKey("TimeTable_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("TimeTable");
+                    b.Navigation("timeTable");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.Attendance", "Attendance")
+                    b.HasOne("Attendance_Student.Models.Attendance", "attendance")
                         .WithMany("StudentsAttendance")
                         .HasForeignKey("AttendanceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Attendance_Student.Models.Student", "Student")
+                    b.HasOne("Attendance_Student.Models.Student", "student")
                         .WithMany("viewAttendances")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Attendance");
+                    b.Navigation("attendance");
 
-                    b.Navigation("Student");
+                    b.Navigation("student");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.SubjectDaySchedule", b =>
@@ -567,13 +567,13 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.DaySchedule", "daySchedule")
                         .WithMany("subjectsScheduled")
                         .HasForeignKey("DayScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Attendance_Student.Models.Subject", "subject")
                         .WithMany("daysScheduled")
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("daySchedule");
@@ -583,21 +583,21 @@ namespace Attendance_Student.Migrations
 
             modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.Attendance", "Attendance")
+                    b.HasOne("Attendance_Student.Models.Attendance", "attendance")
                         .WithMany("TeachersAttendance")
                         .HasForeignKey("AttendanceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Attendance_Student.Models.Teacher", "Teacher")
+                    b.HasOne("Attendance_Student.Models.Teacher", "teacher")
                         .WithMany("AttendanceRecords")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Attendance");
+                    b.Navigation("attendance");
 
-                    b.Navigation("Teacher");
+                    b.Navigation("teacher");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
@@ -605,7 +605,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.Class", "_class")
                         .WithOne("timeTable")
                         .HasForeignKey("Attendance_Student.Models.TimeTable", "class_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("_class");
@@ -616,7 +616,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -625,7 +625,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -634,7 +634,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -643,13 +643,13 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -658,7 +658,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -667,37 +667,37 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.Class", "_class")
                         .WithMany("students")
                         .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Attendance_Student.Models.Parent", "Parent")
+                    b.HasOne("Attendance_Student.Models.Parent", "parent")
                         .WithMany("Students")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Parent");
-
                     b.Navigation("_class");
+
+                    b.Navigation("parent");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Teacher", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.Department", "Department")
+                    b.HasOne("Attendance_Student.Models.Department", "department")
                         .WithMany("Teachers")
                         .HasForeignKey("DeptId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Attendance_Student.Models.Subject", "Subject")
                         .WithMany("teachers")
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Department");
-
                     b.Navigation("Subject");
+
+                    b.Navigation("department");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Attendance", b =>

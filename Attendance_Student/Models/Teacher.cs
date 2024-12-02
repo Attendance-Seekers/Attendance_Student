@@ -21,9 +21,9 @@ namespace Attendance_Student.Models
         public int SubjectId { get; set; }
         public virtual Subject Subject { get; set; }
 
-        [ForeignKey("Department")]
+        [ForeignKey("department")]
         public int DeptId { get; set; }
-        public virtual Department Department { get; set; }
+        public virtual Department department { get; set; }
 
         public virtual List<TeacherAttendance> AttendanceRecords { get; set; } = new List<TeacherAttendance>();
     }
