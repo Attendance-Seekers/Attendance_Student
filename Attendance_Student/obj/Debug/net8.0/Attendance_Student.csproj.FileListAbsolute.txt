@@ -613,6 +613,7 @@ H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\Attendance_S
 H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\Attendance_Student.genruntimeconfig.cache
 H:\.NET\Career180_GradProj\Fork\Attendance_Student\obj\Debug\net8.0\ref\Attendance_Student.dll
 D:\projects_GitHub\Attendance_Student\Attendance_Student\bin\Debug\net8.0\Swashbuckle.AspNetCore.Annotations.dll
+<<<<<<< HEAD
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\bin\Debug\net8.0\appsettings.json
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\bin\Debug\net8.0\Attendance_Student.exe
@@ -766,3 +767,6 @@ C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attend
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.pdb
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.genruntimeconfig.cache
 C:\Users\sweet\Desktop\.Net bootcamp Career180&Learnit\Attendance_Student\Attendance_Student\obj\Debug\net8.0\ref\Attendance_Student.dll
+=======
+H:\.NET\Career180_GradProj\Fork\Attendance_Student\bin\Debug\net8.0\AutoMapper.dll
+>>>>>>> upstream/main

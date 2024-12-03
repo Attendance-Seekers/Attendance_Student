@@ -33,10 +33,10 @@ namespace Attendance_Student.Repositories
             db.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
              
         }
-        public virtual void remove(int id)
+        public virtual void remove(genericEntity obj)
         {
 
-            var obj = db.Set<genericEntity>().Find(id);
+            //var obj = db.Set<genericEntity>().Find(id);
             db.Set<genericEntity>().Remove(obj);
 
         }
