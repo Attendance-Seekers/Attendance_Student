@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "L38GGO/WCYk=",
+  "dgSpecHash": "BZcgqIqLatk=",
   "success": true,
   "projectFilePath": "H:\\.NET\\Career180_GradProj\\Fork\\Attendance_Student\\Attendance_Student.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\abosa\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\abosa\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\abosa\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
     "C:\\Users\\abosa\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",

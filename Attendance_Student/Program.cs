@@ -1,10 +1,10 @@
 
+using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-
 
 namespace Attendance_Student
 {
@@ -43,6 +43,22 @@ namespace Attendance_Student
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AttendanceStudentContext>();
 
             builder.Services.AddScoped<GenericRepository<Class>>();
+            // enable Cross-Origin Requests CORS
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                builder =>
+                {
+                    builder.AllowAnyOrigin();
+                    builder.AllowAnyMethod();
+                    builder.AllowAnyHeader();
+                });
+            });
+
+            // inject AutoMapper Dependancy
+            builder.Services.AddAutoMapper(typeof(mapperConfig));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
