@@ -1,4 +1,4 @@
-﻿using Attendance_Student.DTOs.Class;
+﻿using Attendance_Student.DTOs.ClassDTO;
 using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
