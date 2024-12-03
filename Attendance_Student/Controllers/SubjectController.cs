@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Attendance_Student.Controllers
 {
-    [Route("api/classes")]
+    [Route("api/[controller]")]
     [ApiController]
     public class SubjectController : ControllerBase
     {
@@ -46,7 +46,7 @@ namespace Attendance_Student.Controllers
             }
         }
 
-        [HttpGet("/{id:int}")]
+        [HttpGet("{id:int}")]
         [SwaggerOperation(
          Summary = "Retrieves a Subject by ID",
          Description = "Fetches a single Subject details based on its unique ID"
@@ -77,7 +77,7 @@ namespace Attendance_Student.Controllers
     Description = "Adds a new Subject info to the system. Requires admin privileges.")] // didn't do the admins yet
         [SwaggerResponse(201, "The Subject was created", typeof(SelectSubjectDTO))]
         [SwaggerResponse(400, "The Subject data is invalid")]
-        [Produces("application/json")]
+        //[Produces("application/json")]
         //[Consumes("application/json")]
         public IActionResult addSubject([FromForm] AddSubjectDTO subjectDTO)
         {
@@ -105,8 +105,8 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Subject updated successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid Subject data.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Subject not found.")]
-        [Produces("application/json")]
-        [Consumes("application/json")]
+        //[Produces("application/json")]
+        //[Consumes("application/json")]
         public IActionResult editSubject(EditSubjectDTO subjectDTO)
         {
 

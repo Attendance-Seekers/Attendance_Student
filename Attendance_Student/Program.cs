@@ -43,6 +43,8 @@ namespace Attendance_Student
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AttendanceStudentContext>();
 
             builder.Services.AddScoped<GenericRepository<Class>>();
+            builder.Services.AddScoped<GenericRepository<Subject>>();
+            builder.Services.AddScoped<GenericRepository<TimeTable>>();
             // enable Cross-Origin Requests CORS
             var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             builder.Services.AddCors(options =>

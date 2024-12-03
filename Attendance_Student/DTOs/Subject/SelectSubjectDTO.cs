@@ -12,7 +12,7 @@ namespace Attendance_Student.DTOs.Subject
 
         public int subject_Duration { get; set; }
 
-        public  List<Teacher> teachers { get; set; } 
+        //public  List<Teacher> teachers { get; set; } 
         //public  List<SubjectDaySchedule> daysScheduled { get; set; } 
     }
 }

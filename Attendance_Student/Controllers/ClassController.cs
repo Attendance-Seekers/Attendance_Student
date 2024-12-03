@@ -96,11 +96,11 @@ namespace Attendance_Student.Controllers
         [SwaggerOperation(
     Summary = "Creates a new Class",
     Description = "Adds a new Class info to the system. Requires admin privileges.")] // didn't do the admins yet
-        [SwaggerResponse(201, "The Class was created", typeof(SelectClassDTO))]
+        [SwaggerResponse(201, "The Class was created")]
         [SwaggerResponse(400, "The Class data is invalid")]
-        [Produces("application/json")]
+        //[Produces("application/json")]
         //[Consumes("application/json")]
-        public IActionResult addClass([FromForm] AddClassDTO _classDTO)
+        public IActionResult addClass( AddClassDTO _classDTO)
         {
 
             if (!ModelState.IsValid)
