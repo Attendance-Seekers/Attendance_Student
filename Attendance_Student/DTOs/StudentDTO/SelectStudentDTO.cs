@@ -6,7 +6,8 @@ namespace Attendance_Student.DTOs.StudentDTO
 {
     public class SelectStudentDTO:EditStudentDTO
     {
-      
-        
+        public string username { get; set; }
+
+
     }
 }

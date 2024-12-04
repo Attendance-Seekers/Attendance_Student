@@ -5,7 +5,7 @@ namespace Attendance_Student.DTOs.StudentDTO
     public class EditStudentDTO
     {
         [Required]
-        public string Student_Id { get; set; }
+        public string Id { get; set; }
         
         public string Student_fullname { get; set; }
         [Range(5, 17, ErrorMessage = "Age must be between 5 and 17 years.")]
@@ -16,7 +16,7 @@ namespace Attendance_Student.DTOs.StudentDTO
         public int ClassId { get; set; }
         public string? ParentId { get; set; }
 
-        public string username { get; set; }
+        //public string username { get; set; }
         [RegularExpression("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")]
         public string email { get; set; }
 

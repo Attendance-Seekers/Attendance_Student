@@ -121,8 +121,8 @@ namespace Attendance_Student.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    var teacherName= User.Identity.Name;
-                    var teacher = userManager.FindByNameAsync(teacherName).Result;
+                    //var teacherName= User.Identity.Name;
+                    var teacher = userManager.FindByIdAsync(teacherDTO.Id).Result;
                 if (teacher == null) return NotFound();
                 else
                 {

@@ -5,7 +5,7 @@ namespace Attendance_Student.DTOs.TeacherDTO
     public class EditTeacherDTO
     {
         [Required]
-        public int TeacherId { get; set; }
+        public string Id { get; set; }
         public string Teacher_fullName { get; set; }
 
         public string address { get; set; }
@@ -17,7 +17,6 @@ namespace Attendance_Student.DTOs.TeacherDTO
         //public int DeptId { get; set; }
         //public string? department_name { get; set; }
         
-        public string username { get; set; }
         
         [RegularExpression("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")]
         public string email { get; set; }
