@@ -33,6 +33,10 @@ namespace Attendance_Student.MapperConfig
             CreateMap<Student, SelectStudentDTO>().ReverseMap();
             CreateMap<AddStudentDTO, Student>().ReverseMap();
             CreateMap<EditStudentDTO, Student>().ReverseMap();
+
+            //    CreateMap<Student, SelectStudentDTO>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); 
+            //    CreateMap<AddStudentDTO, Student>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //    CreateMap<EditStudentDTO, Student>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
 
 
