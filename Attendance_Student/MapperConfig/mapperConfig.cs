@@ -1,8 +1,8 @@
-﻿using Attendance_Student.DTOs.Class;
-using Attendance_Student.DTOs.Student;
-using Attendance_Student.DTOs.Subject;
-using Attendance_Student.DTOs.Teacher;
-using Attendance_Student.DTOs.TimeTable;
+﻿using Attendance_Student.DTOs.ClassDTO;
+using Attendance_Student.DTOs.StudentDTO;
+using Attendance_Student.DTOs.SubjectDTO;
+using Attendance_Student.DTOs.TeacherDTO;
+using Attendance_Student.DTOs.TimeTableDTO;
 using Attendance_Student.Models;
 using AutoMapper;
 
