@@ -13,7 +13,7 @@ namespace Attendance_Student.DTOs.TeacherDTO
 
         public int SubjectId { get; set; }
         //public string? Subject_Name { get; set; }
-        public int DeptId { get; set; }
+        //public int DeptId { get; set; }
         //public string? department_name { get; set; }
         [Required]
         public string username { get; set; }
