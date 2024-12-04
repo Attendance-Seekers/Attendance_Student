@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Attendance_Student.Controllers
@@ -153,8 +154,19 @@ namespace Attendance_Student.Controllers
                 }
                 else
                 {
-                    userManager.DeleteAsync(teacher);
-                    return Ok();
+                    // Remove roles associated with the user
+                    var roles = userManager.GetRolesAsync(teacher).Result;
+                    foreach (var role in roles)
+                    {
+                        userManager.RemoveFromRoleAsync(teacher, role).Wait();
+                    }
+                    var res =   userManager.DeleteAsync(teacher).Result;
+                    if (res.Succeeded)
+                    {
+                        return Ok();
+                    }
+                    else
+                    { return BadRequest(res.Errors); }
                 }
 
             }
