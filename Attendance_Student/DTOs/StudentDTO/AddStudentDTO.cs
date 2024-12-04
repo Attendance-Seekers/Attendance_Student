@@ -11,8 +11,7 @@ namespace Attendance_Student.DTOs.StudentDTO
         [Range(5, 17, ErrorMessage = "Age must be between 5 and 17 years.")]
 
         public int age { get; set; }
-        public string status { get; set; } = "Active"; // Active or InActive // will be enum
-
+        public Status status { get; set; } = Status.Active; // Active, InActive, Susbended or fired
         public int ClassId { get; set; }
         public string? ParentId { get; set; }
 

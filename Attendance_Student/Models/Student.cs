@@ -14,7 +14,7 @@ namespace Attendance_Student.Models
         [Range(5, 17, ErrorMessage = "Age must be between 5 and 17 years.")]
 
         public int age { get; set; }
-        public string status { get; set; }
+        public Status status { get; set; }
 
         [ForeignKey("_class")]
         public int ClassId { get; set; }
@@ -24,5 +24,13 @@ namespace Attendance_Student.Models
         public string ParentId { get; set; }
         public virtual Parent parent { get; set; }
         public virtual List<StudentAttendance> viewAttendances { get; set; } = new List<StudentAttendance>();
+    }
+
+    public enum Status 
+    {
+        Active,
+        InActive,
+        Susbended,
+        Fired
     }
 }
