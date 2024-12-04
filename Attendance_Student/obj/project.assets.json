@@ -4525,23 +4525,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\sweet\\.nuget\\packages\\": {},
+    "C:\\Users\\abosa\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\sweet\\Desktop\\.Net bootcamp Career180&Learnit\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+      "projectUniqueName": "H:\\.NET\\Career180_GradProj\\Fork\\Attendance_Student\\Attendance_Student.csproj",
       "projectName": "Attendance_Student",
-      "projectPath": "C:\\Users\\sweet\\Desktop\\.Net bootcamp Career180&Learnit\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
-      "packagesPath": "C:\\Users\\sweet\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\sweet\\Desktop\\.Net bootcamp Career180&Learnit\\Attendance_Student\\Attendance_Student\\obj\\",
+      "projectPath": "H:\\.NET\\Career180_GradProj\\Fork\\Attendance_Student\\Attendance_Student.csproj",
+      "packagesPath": "C:\\Users\\abosa\\.nuget\\packages\\",
+      "outputPath": "H:\\.NET\\Career180_GradProj\\Fork\\Attendance_Student\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\sweet\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\abosa\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4632,16 +4632,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\sweet\\Desktop\\.Net bootcamp Career180&Learnit\\Attendance_Student\\Attendance_Student\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  }
 }

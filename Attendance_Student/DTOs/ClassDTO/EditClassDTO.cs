@@ -1,7 +1,7 @@
 ﻿using Attendance_Student.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Attendance_Student.DTOs.Class
+namespace Attendance_Student.DTOs.ClassDTO
 {
     public class EditClassDTO:AddClassDTO
     {

@@ -1,4 +1,4 @@
-﻿using Attendance_Student.DTOs.Subject;
+﻿using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using AutoMapper;
