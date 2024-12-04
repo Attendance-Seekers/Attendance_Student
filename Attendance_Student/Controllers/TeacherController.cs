@@ -179,6 +179,10 @@ namespace Attendance_Student.Controllers
 
 
         //        }
+        //[HttpPost("/{teacher_id}/attendance/class/{class_id}")]
+        //public IActionResult addReport(string teacher_id, int class_id) 
+        //{
+        //}
     }
 }
 
