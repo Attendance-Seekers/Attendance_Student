@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-
-using Attendance_Student.MapperConfig;
->>>>>>> upstream/main
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,10 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-<<<<<<< HEAD
 using System.Text;
-=======
->>>>>>> upstream/main
 
 namespace Attendance_Student
 {
@@ -125,26 +117,6 @@ namespace Attendance_Student
 
             // Repositories
             builder.Services.AddScoped<GenericRepository<Class>>();
-<<<<<<< HEAD
-=======
-            builder.Services.AddScoped<GenericRepository<Subject>>();
-            builder.Services.AddScoped<GenericRepository<TimeTable>>();
-            // enable Cross-Origin Requests CORS
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(MyAllowSpecificOrigins,
-                builder =>
-                {
-                    builder.AllowAnyOrigin();
-                    builder.AllowAnyMethod();
-                    builder.AllowAnyHeader();
-                });
-            });
-
-            // inject AutoMapper Dependancy
-            builder.Services.AddAutoMapper(typeof(mapperConfig));
->>>>>>> upstream/main
 
             var app = builder.Build();
 

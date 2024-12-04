@@ -39,13 +39,12 @@ namespace Attendance_Student.Controllers
 [SwaggerResponse(StatusCodes.Status400BadRequest, "Validation errors or registration failure.")]
 public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
 {
-    // Check if the provided role exists
+   
     if (!await _roleManager.RoleExistsAsync(registerDto.Role))
     {
         return BadRequest($"Role '{registerDto.Role}' does not exist.");
     }
 
-    // Create a new user object with the provided details
     var user = new IdentityUser
     {
         UserName = registerDto.Username,
@@ -53,12 +52,12 @@ public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         PhoneNumber = registerDto.Phone
     };
 
-    // Save the user's name as a claim or in a custom property if extending IdentityUser
+    
     var result = await _userManager.CreateAsync(user, registerDto.Password);
 
     if (result.Succeeded)
     {
-        // Add the user to the specified role
+        
         await _userManager.AddToRoleAsync(user, registerDto.Role);
 
        
