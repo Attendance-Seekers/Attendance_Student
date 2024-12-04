@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,12 +16,17 @@ namespace Attendance_Student.Controllers
     {
         AttendanceStudentContext db;
         GenericRepository<Class> classRepo;
+
+        UserManager<IdentityUser> userManager;
+        RoleManager<IdentityRole> roleManager;
         IMapper mapper; 
-        public ClassController(AttendanceStudentContext db, GenericRepository<Class> classRepo, IMapper mapper )
+        public ClassController(AttendanceStudentContext db, GenericRepository<Class> classRepo, IMapper mapper, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager)
         {
             this.db = db;
             this.classRepo = classRepo;
             this.mapper = mapper;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
         }
         [HttpGet]
         [SwaggerOperation
@@ -111,17 +117,20 @@ namespace Attendance_Student.Controllers
             {
 
                 Class newClass = mapper.Map<Class>(_classDTO);
+                List < Student > students = new List<Student>();
+                foreach (var studentId in _classDTO.studentsIDs) 
+                {
+                    var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                    students.Add(student);
 
+                }
+                newClass.students = students;
 
-                //Console.WriteLine(  "i'm being addded");
+              
                 classRepo.add(newClass);
-
-
-                //Console.WriteLine( "i have been added sucessfully" );
                 classRepo.save();
                 return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _classDTO);
-                //return Ok();
-
+                
             }
         }
         [HttpPut]
@@ -141,6 +150,23 @@ namespace Attendance_Student.Controllers
                 else 
                 {
                     mapper.Map(_classDTO,_class);
+
+                    if (_classDTO.flagAddOrOverwrite)  // if true , clear all the students within the current class
+                    {
+                        _class.students.Clear();
+
+                    }
+                    else
+                    {
+                        List<Student> students = new List<Student>();
+                        foreach (var studentId in _classDTO.studentsIDs)
+                        {
+                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                            students.Add(student);
+
+                        }
+                        _class.students = students;
+                    }
                     classRepo.update(_class);
                     classRepo.save();
                     return Ok();
