@@ -154,10 +154,6 @@ namespace Attendance_Student.Controllers
                     if (_classDTO.flagAddOrOverwrite)  // if true , clear all the students within the current class
                     {
                         _class.students.Clear();
-
-                    }
-                    else
-                    {
                         List<Student> students = new List<Student>();
                         foreach (var studentId in _classDTO.studentsIDs)
                         {
@@ -166,6 +162,19 @@ namespace Attendance_Student.Controllers
 
                         }
                         _class.students = students;
+
+
+                    }
+                    else
+                    {
+                        
+                        foreach (var studentId in _classDTO.studentsIDs)
+                        {
+                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                            _class.students.Add(student);
+
+                        }
+                        
                     }
                     classRepo.update(_class);
                     classRepo.save();
