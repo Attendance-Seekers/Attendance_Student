@@ -1,6 +1,7 @@
 ﻿using Attendance_Student.DTOs.DepartmentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,21 +15,21 @@ namespace Attendance_Student.Controllers
     public class DepartmentController : ControllerBase
     {
         
-            AttendanceStudentContext db;
-            GenericRepository<Department> DepartmentRepo;
-            GenericRepository<Subject> subjectRepo;
+            //AttendanceStudentContext db;
+            //GenericRepository<Department> DepartmentRepo;
+            //GenericRepository<Subject> subjectRepo;
+            UnitWork unit;
 
             UserManager<IdentityUser> userManager;
             RoleManager<IdentityRole> roleManager;
             IMapper mapper;
-            public DepartmentController(GenericRepository<Subject> subjectRepo, AttendanceStudentContext db, GenericRepository<Department> DepartmentRepo, IMapper mapper, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+            public DepartmentController(UnitWork unit, IMapper mapper, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
             {
-                this.db = db;
-                this.DepartmentRepo = DepartmentRepo;
+                this.unit = unit;
                 this.mapper = mapper;
                 this.userManager = userManager;
                 this.roleManager = roleManager;
-                this.subjectRepo = subjectRepo;
+               
             }
         [HttpGet]
         [SwaggerOperation
@@ -42,7 +43,7 @@ namespace Attendance_Student.Controllers
 
         public IActionResult selectAllDepartmentes()
         {
-            List<Department> Departmentes = DepartmentRepo.selectAll();
+            List<Department> Departmentes = unit.DepartmentRepo.selectAll();
 
             if (Departmentes.Count < 0) return NotFound();
             else
@@ -68,7 +69,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectDepartmentById(int id)
         {
 
-            Department _Department = DepartmentRepo.selectById(id);
+            Department _Department = unit.DepartmentRepo.selectById(id);
 
 
             if (_Department == null) return NotFound();
@@ -110,7 +111,7 @@ namespace Attendance_Student.Controllers
                 List<Subject> subjects = new List<Subject>();
                 foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
                 {
-                    var subject = subjectRepo.selectById(subjectId);
+                    var subject = unit.SubjectRepo.selectById(subjectId);
 
                     subjects.Add(subject);
 
@@ -120,8 +121,8 @@ namespace Attendance_Student.Controllers
                 newDepartment.Subjects = subjects;
 
 
-                DepartmentRepo.add(newDepartment);
-                DepartmentRepo.save();
+                unit.DepartmentRepo.add(newDepartment);
+                unit.DepartmentRepo.save();
                 return CreatedAtAction("selectDepartmentById", new { id = newDepartment.Id }, _DepartmentDTO);
 
             }
@@ -138,7 +139,7 @@ namespace Attendance_Student.Controllers
 
             if (ModelState.IsValid)
             {
-                var _Department = DepartmentRepo.selectById(_DepartmentDTO.Id);
+                var _Department = unit.DepartmentRepo.selectById(_DepartmentDTO.Id);
                 if (_Department == null) return NotFound();
                 else
                 {
@@ -159,7 +160,7 @@ namespace Attendance_Student.Controllers
                         List<Subject> subjects = new List<Subject>();
                         foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
                         {
-                            var subject = subjectRepo.selectById(subjectId);
+                            var subject = unit.SubjectRepo.selectById(subjectId);
 
                             subjects.Add(subject);
 
@@ -182,15 +183,15 @@ namespace Attendance_Student.Controllers
 
                         foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
                         {
-                            var subject = subjectRepo.selectById(subjectId);
+                            var subject = unit.SubjectRepo.selectById(subjectId);
 
                             _Department.Subjects.Add(subject);
 
                         }
 
                     }
-                    DepartmentRepo.update(_Department);
-                    DepartmentRepo.save();
+                    unit.DepartmentRepo.update(_Department);
+                     unit.DepartmentRepo.save();
                     return Ok();
                 }
             }
@@ -207,15 +208,15 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
         public IActionResult deleteDepartmentById(int id)
         {
-            var _Department = DepartmentRepo.selectById(id);
+            var _Department = unit.DepartmentRepo.selectById(id);
             if (_Department == null)
             {
                 return NotFound();
             }
             else
             {
-                DepartmentRepo.remove(_Department);
-                DepartmentRepo.save();
+                unit.DepartmentRepo.remove(_Department);
+                  unit.DepartmentRepo.save();
                 return Ok();
             }
 
