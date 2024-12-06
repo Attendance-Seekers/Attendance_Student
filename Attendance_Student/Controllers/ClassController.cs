@@ -2,6 +2,7 @@
 using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,16 +15,15 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class ClassController : ControllerBase
     {
-        AttendanceStudentContext db;
-        GenericRepository<Class> classRepo;
-
+        //AttendanceStudentContext db;
+        //GenericRepository<Class> classRepo;
+        UnitWork unit;
         UserManager<IdentityUser> userManager;
         RoleManager<IdentityRole> roleManager;
         IMapper mapper; 
-        public ClassController(AttendanceStudentContext db, GenericRepository<Class> classRepo, IMapper mapper, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager)
+        public ClassController(UnitWork unit, IMapper mapper, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager)
         {
-            this.db = db;
-            this.classRepo = classRepo;
+            this.unit = unit;
             this.mapper = mapper;
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -41,7 +41,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectAllClasses()
         {
             //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            List<Class> classes = classRepo.selectAll();
+            List<Class> classes = unit.ClassRepo.selectAll();
            
             if (classes.Count < 0) return NotFound();
             else
@@ -80,7 +80,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectClassById(int id)
         {
 
-            Class _class = classRepo.selectById(id);
+            Class _class = unit.ClassRepo.selectById(id);
 
 
             if (_class == null) return NotFound();
@@ -127,8 +127,8 @@ namespace Attendance_Student.Controllers
                 newClass.students = students;
 
               
-                classRepo.add(newClass);
-                classRepo.save();
+                unit.ClassRepo.add(newClass);
+                unit.ClassRepo.save();
                 return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _classDTO);
                 
             }
@@ -145,7 +145,7 @@ namespace Attendance_Student.Controllers
 
             if (ModelState.IsValid) 
             {
-                var _class = classRepo.selectById(_classDTO.Class_Id);
+                var _class = unit.ClassRepo.selectById(_classDTO.Class_Id);
                 if (_class == null) return NotFound();
                 else 
                 {
@@ -176,8 +176,8 @@ namespace Attendance_Student.Controllers
                         }
                         
                     }
-                    classRepo.update(_class);
-                    classRepo.save();
+                    unit.ClassRepo.update(_class);
+                    unit.ClassRepo.save();
                     return Ok();
                 }
             }
@@ -194,15 +194,15 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
         public IActionResult deleteClassById(int id)
         {
-            var _class = classRepo.selectById(id);
+            var _class = unit.ClassRepo.selectById(id);
             if (_class == null)
             {
                 return NotFound();
             }
             else 
             {
-                classRepo.remove(_class);
-                classRepo.save();
+                unit.ClassRepo.remove(_class);
+                unit.ClassRepo.save();
                 return Ok();
             }
 
