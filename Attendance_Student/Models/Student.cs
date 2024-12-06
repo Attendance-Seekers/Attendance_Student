@@ -17,11 +17,11 @@ namespace Attendance_Student.Models
         public Status status { get; set; }
 
         [ForeignKey("_class")]
-        public int ClassId { get; set; }
+        public int? ClassId { get; set; }
         public virtual Class _class { get; set; }
         [ForeignKey("parent")]
         //[Required(ErrorMessage = "Parent ID is required.")]
-        public string ParentId { get; set; }
+        public string? ParentId { get; set; }
         public virtual Parent parent { get; set; }
         public virtual List<StudentAttendance> viewAttendances { get; set; } = new List<StudentAttendance>();
     }
