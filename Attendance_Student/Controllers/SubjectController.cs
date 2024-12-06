@@ -1,6 +1,7 @@
 ﻿using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,13 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class SubjectController : ControllerBase
     {
-        AttendanceStudentContext db;
-        GenericRepository<Subject> subjectRepo;
+        //AttendanceStudentContext db;
+        //GenericRepository<Subject> subjectRepo;
+        UnitWork unit;
         IMapper mapper;
-        public SubjectController(AttendanceStudentContext db, GenericRepository<Subject> subjectRepo, IMapper mapper)
+        public SubjectController(UnitWork unit, IMapper mapper)
         {
-            this.db = db;
-            this.subjectRepo = subjectRepo;
+          this.unit = unit;
             this.mapper = mapper;
         }
         [HttpGet]
@@ -34,7 +35,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectAllSubjectss()
         {
             //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            List<Subject> subjects = subjectRepo.selectAll();
+            List<Subject> subjects = unit.SubjectRepo.selectAll();
 
             if (subjects.Count < 0) return NotFound();
             else
@@ -59,13 +60,14 @@ namespace Attendance_Student.Controllers
         public IActionResult selectSubjectById(int id)
         {
 
-            Subject subject = subjectRepo.selectById(id);
+            Subject subject = unit.SubjectRepo.selectById(id);
 
 
             if (subject == null) return NotFound();
             else
             {
                 var subjectDTO = mapper.Map<SelectSubjectDTO>(subject);
+
               
                 return Ok(subjectDTO);
             }
@@ -92,9 +94,9 @@ namespace Attendance_Student.Controllers
                 Subject newSubject = mapper.Map<Subject>(subjectDTO);
 
 
-               
-                subjectRepo.add(newSubject);            
-                subjectRepo.save();
+
+                unit.SubjectRepo.add(newSubject);
+                unit.SubjectRepo.save();
                 return CreatedAtAction("selectSubjectById", new { id = newSubject.subject_Id }, subjectDTO);
                
 
@@ -112,13 +114,13 @@ namespace Attendance_Student.Controllers
 
             if (ModelState.IsValid)
             {
-                var subjcet = subjectRepo.selectById(subjectDTO.subject_Id);
+                var subjcet = unit.SubjectRepo.selectById(subjectDTO.subject_Id);
                 if (subjcet == null) return NotFound();
                 else
                 {
                     mapper.Map(subjectDTO, subjcet);
-                    subjectRepo.update(subjcet);
-                    subjectRepo.save();
+                    unit.SubjectRepo.update(subjcet);
+                    unit.SubjectRepo.save();
                     return Ok();
                 }
             }
@@ -135,14 +137,15 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
         public IActionResult deleteSubjectById(int id)
         {
-            var subjcet = subjectRepo.selectById(id);
+            var subjcet = unit.SubjectRepo.selectById(id);
             if (subjcet == null)
             {
                 return NotFound();
             }
             else
             {
-                subjectRepo.remove(subjcet);
+                unit.SubjectRepo.remove(subjcet);
+                unit.SubjectRepo.save();
                 return Ok();
             }
 

@@ -10,7 +10,7 @@ namespace Attendance_Student.Models
         [Required]
         public string Dayname { get; set; }
         [ForeignKey("timeTable")]
-        public int TimeTable_id { get; set; }
+        public int? TimeTable_id { get; set; }
         public virtual TimeTable timeTable { get; set; }
         public virtual List<SubjectDaySchedule> subjectsScheduled { get; set; } = new List<SubjectDaySchedule>();// contain teachers
     }

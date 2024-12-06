@@ -17,7 +17,7 @@ namespace Attendance_Student.Models
         public virtual List<StudentAttendance> StudentsAttendance { get; set; } = new List<StudentAttendance>();
 
         [ForeignKey("timeTable")]
-        public int TimeTableId { get; set; }
+        public int? TimeTableId { get; set; }
         public virtual TimeTable timeTable { get; set; }
     }
 }
