@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    partial class AttendanceStudentContextModelSnapshot : ModelSnapshot
+    [Migration("20241205235730_custom_migration")]
+    partial class custom_migration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,14 +46,9 @@ namespace Attendance_Student.Migrations
                     b.Property<DateOnly>("dateAttendance")
                         .HasColumnType("date");
 
-                    b.Property<string>("teacher_id")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TimeTableId");
-
-                    b.HasIndex("teacher_id");
 
                     b.ToTable("Attendances");
                 });
@@ -116,43 +114,6 @@ namespace Attendance_Student.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("Attendance_Student.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Parent_Id")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("admin_id")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateOnly>("sendDate")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Parent_Id");
-
-                    b.HasIndex("admin_id");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
                 {
                     b.Property<string>("StudentId")
@@ -169,7 +130,7 @@ namespace Attendance_Student.Migrations
 
                     b.HasIndex("AttendanceId");
 
-                    b.ToTable("StudentAttendances");
+                    b.ToTable("StudentAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>
@@ -217,6 +178,24 @@ namespace Attendance_Student.Migrations
                     b.HasIndex("DayScheduleId");
 
                     b.ToTable("SubjectDaySchedule");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
+                {
+                    b.Property<string>("TeacherId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AttendanceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("RecordDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("TeacherId", "AttendanceId");
+
+                    b.HasIndex("AttendanceId");
+
+                    b.ToTable("TeacherAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
@@ -554,18 +533,7 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.TimeTable", "timeTable")
                         .WithMany()
                         .HasForeignKey("TimeTableId")
-<<<<<<< HEAD
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Attendance_Student.Models.Teacher", "teacher")
-                        .WithMany("AttendanceRecords")
-                        .HasForeignKey("teacher_id")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("teacher");
-=======
                         .OnDelete(DeleteBehavior.SetNull);
->>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
 
                     b.Navigation("timeTable");
                 });
@@ -578,25 +546,6 @@ namespace Attendance_Student.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("timeTable");
-                });
-
-            modelBuilder.Entity("Attendance_Student.Models.Notification", b =>
-                {
-                    b.HasOne("Attendance_Student.Models.Parent", "Parent")
-                        .WithMany()
-                        .HasForeignKey("Parent_Id")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Attendance_Student.Models.Admin", "admin")
-                        .WithMany("Notifications")
-                        .HasForeignKey("admin_id")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Parent");
-
-                    b.Navigation("admin");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
@@ -647,8 +596,6 @@ namespace Attendance_Student.Migrations
                     b.Navigation("subject");
                 });
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
                 {
                     b.HasOne("Attendance_Student.Models.Attendance", "attendance")
@@ -668,7 +615,6 @@ namespace Attendance_Student.Migrations
                     b.Navigation("teacher");
                 });
 
->>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
                     b.HasOne("Attendance_Student.Models.Class", "_class")
@@ -767,6 +713,8 @@ namespace Attendance_Student.Migrations
             modelBuilder.Entity("Attendance_Student.Models.Attendance", b =>
                 {
                     b.Navigation("StudentsAttendance");
+
+                    b.Navigation("TeachersAttendance");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Class", b =>
@@ -799,11 +747,6 @@ namespace Attendance_Student.Migrations
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
                     b.Navigation("DaySchedules");
-                });
-
-            modelBuilder.Entity("Attendance_Student.Models.Admin", b =>
-                {
-                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Parent", b =>

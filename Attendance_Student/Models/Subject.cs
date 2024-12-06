@@ -15,7 +15,7 @@ namespace Attendance_Student.Models
        
         [ForeignKey("department")] // subject belong to one department like math, mechanics,Calculs belongs to mathematic department
         
-        public int DeptId { get; set; }
+        public int? DeptId { get; set; }
         public virtual Department department { get; set; }
         public virtual List<Teacher> teachers { get; set; } = new List<Teacher>();
         public virtual List<SubjectDaySchedule> daysScheduled { get; set; } = new List<SubjectDaySchedule>();

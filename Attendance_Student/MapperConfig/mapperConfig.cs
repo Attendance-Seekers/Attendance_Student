@@ -1,4 +1,5 @@
 ﻿using Attendance_Student.DTOs.ClassDTO;
+using Attendance_Student.DTOs.DepartmentDTO;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.DTOs.TeacherDTO;
@@ -37,6 +38,15 @@ namespace Attendance_Student.MapperConfig
             //    CreateMap<Student, SelectStudentDTO>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); 
             //    CreateMap<AddStudentDTO, Student>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             //    CreateMap<EditStudentDTO, Student>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            //DEpartment mappers
+            CreateMap<Department, SelectDepartmentDTO>().ReverseMap();
+            CreateMap<AddDepartmentDTO, Department>().ReverseMap();
+            CreateMap<EditDepartmentDTO, Department>().ReverseMap();
+            CreateMap<Teacher, CustomSelectTeacherDTO>().ReverseMap();
+            CreateMap<Subject, CustomSelectSubjectDTO>().ReverseMap();
+
+
         }
 
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using Attendance_Student.DTOs.AttendanceDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
@@ -209,6 +210,12 @@ namespace Attendance_Student.Controllers
 
 
         }
+=======
+﻿namespace Attendance_Student.Controllers
+{
+    public class AttendanceController
+    {
+>>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
 
     }
 }

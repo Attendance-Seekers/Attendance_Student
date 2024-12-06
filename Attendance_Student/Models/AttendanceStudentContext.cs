@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Attendance_Student.Models
@@ -37,8 +38,19 @@ namespace Attendance_Student.Models
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(e => e.GetForeignKeys()))
             {
-                relationship.DeleteBehavior = DeleteBehavior.NoAction;
+                relationship.DeleteBehavior = DeleteBehavior.SetNull;
             }
+            //// Override for specific relationships
+            //modelBuilder.Entity<Student>()
+            //    .HasOne(s => s._class)                // Student belongs to one Class
+            //    .WithMany(c => c.students)           // Class has many Students
+            //    .HasForeignKey(s => s.ClassId)       // Foreign key in Student
+            //    .OnDelete(DeleteBehavior.Cascade);   // Enable cascading delete
+            //modelBuilder.Entity<IdentityUserRole<string>>()
+            //  .HasOne<IdentityUser>()
+            //  .WithMany()
+            //  .HasForeignKey(ur => ur.UserId)
+            //  .OnDelete(DeleteBehavior.Cascade);
 
         }
 
