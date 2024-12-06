@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    partial class AttendanceStudentContextModelSnapshot : ModelSnapshot
+    [Migration("20241206011452_v7")]
+    partial class v7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,10 +132,6 @@ namespace Attendance_Student.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("Parent_Id")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -146,11 +145,9 @@ namespace Attendance_Student.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Parent_Id");
-
                     b.HasIndex("admin_id");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
@@ -491,6 +488,9 @@ namespace Attendance_Student.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("NotificationId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ParentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -507,6 +507,8 @@ namespace Attendance_Student.Migrations
                         .HasColumnType("int");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("NotificationId");
 
                     b.HasIndex("ParentId");
 
@@ -579,19 +581,11 @@ namespace Attendance_Student.Migrations
 
             modelBuilder.Entity("Attendance_Student.Models.Notification", b =>
                 {
-                    b.HasOne("Attendance_Student.Models.Parent", "Parent")
-                        .WithMany()
-                        .HasForeignKey("Parent_Id")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Attendance_Student.Models.Admin", "admin")
                         .WithMany("Notifications")
                         .HasForeignKey("admin_id")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Parent");
 
                     b.Navigation("admin");
                 });
@@ -715,6 +709,11 @@ namespace Attendance_Student.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("Attendance_Student.Models.Notification", null)
+                        .WithMany("Students")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("Attendance_Student.Models.Parent", "parent")
                         .WithMany("Students")
                         .HasForeignKey("ParentId")
@@ -768,6 +767,11 @@ namespace Attendance_Student.Migrations
                     b.Navigation("Subjects");
 
                     b.Navigation("Teachers");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Notification", b =>
+                {
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>

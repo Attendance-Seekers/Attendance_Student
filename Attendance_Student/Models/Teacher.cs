@@ -25,6 +25,6 @@ namespace Attendance_Student.Models
         public int DeptId { get; set; }
         public virtual Department department { get; set; }
 
-        public virtual List<TeacherAttendance> AttendanceRecords { get; set; } = new List<TeacherAttendance>();
+        public virtual List<Attendance> AttendanceRecords { get; set; } = new List<Attendance>();
     }
 }

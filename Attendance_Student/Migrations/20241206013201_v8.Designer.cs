@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    partial class AttendanceStudentContextModelSnapshot : ModelSnapshot
+    [Migration("20241206013201_v8")]
+    partial class v8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,7 +153,7 @@ namespace Attendance_Student.Migrations
 
                     b.HasIndex("admin_id");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.StudentAttendance", b =>
@@ -491,6 +494,9 @@ namespace Attendance_Student.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("NotificationId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ParentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -507,6 +513,8 @@ namespace Attendance_Student.Migrations
                         .HasColumnType("int");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("NotificationId");
 
                     b.HasIndex("ParentId");
 
@@ -715,6 +723,11 @@ namespace Attendance_Student.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("Attendance_Student.Models.Notification", null)
+                        .WithMany("Students")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("Attendance_Student.Models.Parent", "parent")
                         .WithMany("Students")
                         .HasForeignKey("ParentId")
@@ -768,6 +781,11 @@ namespace Attendance_Student.Migrations
                     b.Navigation("Subjects");
 
                     b.Navigation("Teachers");
+                });
+
+            modelBuilder.Entity("Attendance_Student.Models.Notification", b =>
+                {
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("Attendance_Student.Models.Subject", b =>

@@ -20,6 +20,8 @@ namespace Attendance_Student.Models
         public virtual DbSet<Attendance> Attendances { get; set; }
         public virtual DbSet<DaySchedule> DaySchedules { get; set; }
         public virtual DbSet<Parent> Parents { get; set; }
+        public virtual DbSet<StudentAttendance> StudentAttendances { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
 
 
@@ -29,7 +31,7 @@ namespace Attendance_Student.Models
 
 
             modelBuilder.Entity<StudentAttendance>().HasKey(s => new { s.StudentId, s.AttendanceId });
-            modelBuilder.Entity<TeacherAttendance>().HasKey(t => new { t.TeacherId, t.AttendanceId });
+            //modelBuilder.Entity<TeacherAttendance>().HasKey(t => new { t.TeacherId, t.AttendanceId });
             modelBuilder.Entity<SubjectDaySchedule>().HasKey(d => new { d.SubjectId, d.DayScheduleId });
             // Disable cascading delete for all relationships
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()

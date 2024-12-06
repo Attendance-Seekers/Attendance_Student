@@ -24,6 +24,11 @@ namespace Attendance_Student
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(op =>
             {
+                op.MapType<DateOnly>(() => new OpenApiSchema
+                {
+                    Type = "string",
+                    Format = "date"
+                });
                 op.EnableAnnotations();
                 op.SwaggerDoc("v1", new OpenApiInfo
                 {
