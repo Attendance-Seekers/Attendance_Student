@@ -67,7 +67,7 @@ namespace Attendance_Student.Controllers
             }
         }
 
-        [HttpGet("/{id:int}")]
+        [HttpGet("{id:int}")]
         [SwaggerOperation(
          Summary = "Retrieves a class by ID",
          Description = "Fetches a single class details based on its unique ID"
@@ -202,6 +202,7 @@ namespace Attendance_Student.Controllers
             else 
             {
                 classRepo.remove(_class);
+                classRepo.save();
                 return Ok();
             }
 
