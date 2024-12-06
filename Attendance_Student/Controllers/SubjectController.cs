@@ -66,6 +66,7 @@ namespace Attendance_Student.Controllers
             else
             {
                 var subjectDTO = mapper.Map<SelectSubjectDTO>(subject);
+
               
                 return Ok(subjectDTO);
             }
@@ -143,6 +144,7 @@ namespace Attendance_Student.Controllers
             else
             {
                 subjectRepo.remove(subjcet);
+                subjectRepo.save();
                 return Ok();
             }
 

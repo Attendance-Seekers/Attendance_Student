@@ -119,6 +119,7 @@ namespace Attendance_Student
 
             // Repositories
             builder.Services.AddScoped<GenericRepository<Class>>();
+            builder.Services.AddScoped<GenericRepository<Department>>();
 
             builder.Services.AddScoped<GenericRepository<Subject>>();
             builder.Services.AddScoped<GenericRepository<TimeTable>>();
