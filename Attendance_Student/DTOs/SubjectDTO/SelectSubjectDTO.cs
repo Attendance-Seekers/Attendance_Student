@@ -1,7 +1,8 @@
-﻿using Attendance_Student.Models;
+﻿using Attendance_Student.DTOs.TeacherDTO;
+using Attendance_Student.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Attendance_Student.DTOs.Subject
+namespace Attendance_Student.DTOs.SubjectDTO
 {
     public class SelectSubjectDTO
     {
@@ -11,8 +12,9 @@ namespace Attendance_Student.DTOs.Subject
         public string subject_Name { get; set; }
 
         public int subject_Duration { get; set; }
+        public int DeptId { get; set; }
 
-        //public  List<Teacher> teachers { get; set; } 
+        public  List<SelectTeacherDTO> teachers { get; set; }
         //public  List<SubjectDaySchedule> daysScheduled { get; set; } 
     }
 }

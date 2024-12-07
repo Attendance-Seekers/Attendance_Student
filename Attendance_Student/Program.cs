@@ -1,3 +1,4 @@
+using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,11 +28,12 @@ namespace Attendance_Student
                 {
                     Title = "Attendance Recording System API",
                     Version = "v1",
-                    Description = "APIs for attendance recording system",
+                    Description = "APIs for the attendance recording system",
                     TermsOfService = new Uri("https://github.com/Attendance-Seekers"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Attendance Seekers"
+                        Name = "Attendance Seekers",
+                        Url = new Uri("https://github.com/Attendance-Seekers")
                     }
                 });
 
@@ -62,15 +64,16 @@ namespace Attendance_Student
                 });
             });
 
-            // Database Context
+            // Configure database context with SQL Server
             builder.Services.AddDbContext<AttendanceStudentContext>(op =>
                 op.UseLazyLoadingProxies().UseSqlServer(
                     builder.Configuration.GetConnectionString("AttendanceConn")
                 )
             );
 
-            // Identity Configuration
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            // Configure Identity
+           // Configure Identity for multiple user types
+            builder.Services.AddIdentityCore<IdentityUser>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -79,10 +82,25 @@ namespace Attendance_Student
                 options.Password.RequiredLength = 6;
                 options.User.RequireUniqueEmail = true;
             })
-            .AddEntityFrameworkStores<AttendanceStudentContext>()
-            .AddDefaultTokenProviders();
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<AttendanceStudentContext>();
 
-            // JWT Authentication
+            // Add UserManager for Parent
+            builder.Services.AddIdentityCore<Parent>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequiredLength = 6;
+                options.User.RequireUniqueEmail = true;
+            })
+              .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<AttendanceStudentContext>()
+            .AddDefaultTokenProviders()
+            .AddUserManager<UserManager<Parent>>();
+
+            // Configure JWT Authentication
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"]);
             builder.Services.AddAuthentication(options =>
             {
@@ -102,28 +120,44 @@ namespace Attendance_Student
                 };
             });
 
-            // Authorization Policies
+            // Configure Authorization Policies
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("StudentPolicy", policy =>
-                    policy.RequireRole("Student"));
-                options.AddPolicy("TeacherPolicy", policy =>
-                    policy.RequireRole("Teacher"));
-                options.AddPolicy("AdminPolicy", policy =>
-                    policy.RequireRole("Administrator"));
-                options.AddPolicy("ParentPolicy", policy =>
-                    policy.RequireRole("Parent"));
+                options.AddPolicy("StudentPolicy", policy => policy.RequireRole("Student"));
+                options.AddPolicy("TeacherPolicy", policy => policy.RequireRole("Teacher"));
+                options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Administrator"));
+                options.AddPolicy("ParentPolicy", policy => policy.RequireRole("Parent"));
             });
 
-            // Repositories
+            // Dependency Injection for Repositories
             builder.Services.AddScoped<GenericRepository<Class>>();
+            builder.Services.AddScoped<GenericRepository<Subject>>();
+            builder.Services.AddScoped<GenericRepository<TimeTable>>();
+
+            // Enable CORS
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+            });
+
+            // Inject AutoMapper for object mapping
+            builder.Services.AddAutoMapper(typeof(mapperConfig));
 
             var app = builder.Build();
 
-            // Seed Roles
-            var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            await RoleSeeder.SeedRolesAsync(roleManager);
+            // Seed default roles during application startup
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await RoleSeeder.SeedRolesAsync(roleManager);
+            }
 
             // Configure the HTTP request pipeline
             if (app.Environment.IsDevelopment())
@@ -134,14 +168,18 @@ namespace Attendance_Student
 
             app.UseHttpsRedirection();
 
+            // Enable CORS
+            app.UseCors(MyAllowSpecificOrigins);
+
             // Add Authentication and Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Map controllers to endpoints
             app.MapControllers();
 
+            // Run the application
             app.Run();
         }
     }
-
 }

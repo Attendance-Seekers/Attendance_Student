@@ -4,6 +4,7 @@ using Attendance_Student.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Attendance_Student.Migrations
 {
     [DbContext(typeof(AttendanceStudentContext))]
-    partial class AttendanceStudentContextModelSnapshot : ModelSnapshot
+    [Migration("20241204014712_dept-subj")]
+    partial class deptsubj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,7 +141,7 @@ namespace Attendance_Student.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("subject_Id"));
 
-                    b.Property<int>("DeptId")
+                    b.Property<int>("dept_id")
                         .HasColumnType("int");
 
                     b.Property<int>("subject_Duration")
@@ -151,7 +154,7 @@ namespace Attendance_Student.Migrations
 
                     b.HasKey("subject_Id");
 
-                    b.HasIndex("DeptId");
+                    b.HasIndex("dept_id");
 
                     b.ToTable("Subjects");
                 });
@@ -479,8 +482,9 @@ namespace Attendance_Student.Migrations
                     b.Property<int>("age")
                         .HasColumnType("int");
 
-                    b.Property<int>("status")
-                        .HasColumnType("int");
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasIndex("ClassId");
 
@@ -570,7 +574,7 @@ namespace Attendance_Student.Migrations
                 {
                     b.HasOne("Attendance_Student.Models.Department", "department")
                         .WithMany("Subjects")
-                        .HasForeignKey("DeptId")
+                        .HasForeignKey("dept_id")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
