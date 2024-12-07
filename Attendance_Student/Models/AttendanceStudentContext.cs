@@ -6,6 +6,10 @@ namespace Attendance_Student.Models
 {
     public class AttendanceStudentContext:IdentityDbContext
     {
+        public AttendanceStudentContext()
+        {
+        }
+
         public AttendanceStudentContext(DbContextOptions<AttendanceStudentContext> options):base(options)
         {
                 

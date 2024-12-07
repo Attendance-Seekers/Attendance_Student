@@ -17,7 +17,18 @@ namespace Attendance_Student.UnitOfWorks
 
             this.db = db;
         }
-
+        public AttendanceStudentContext DB
+        {
+            get
+            {
+                if (db == null)
+                {
+                    
+                    db = new AttendanceStudentContext();
+                }
+                return db;
+            }
+        }
         public GenericRepository<Class> ClassRepo
         {
             get
