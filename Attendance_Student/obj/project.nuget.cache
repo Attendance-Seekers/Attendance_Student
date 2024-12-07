@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "g8vYgkvQuUe3Bwm4swgsPhp6J124EvbyvyR+o6xd4SHqeUi79MAuNwnPePIq6EhGreQ2pZQQ0UKcVth9u4umGQ==",
+  "dgSpecHash": "BmftasCjqwmjwaQhAnGXP4VGghIK7pgWSMM75t6KjkNnDQXzbeZUQbp7GbwposVx/knfwCUhu3Ew39uOrFfcMQ==",
   "success": true,
-  "projectFilePath": "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+  "projectFilePath": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ahmed\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\ahmed\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

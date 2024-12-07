@@ -9,6 +9,6 @@ namespace Attendance_Student.Repositories
         {
             _db = db;
         }
-        public 
+        
     }
 }

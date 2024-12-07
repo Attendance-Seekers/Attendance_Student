@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {}
+    "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {}
   },
   "projects": {
-    "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {
+    "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+        "projectUniqueName": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
         "projectName": "Attendance_Student",
-        "projectPath": "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+        "projectPath": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
         "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
-        "outputPath": "D:\\projects_GitHub\\Project_updates\\Attendance_Student\\Attendance_Student\\obj\\",
+        "outputPath": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

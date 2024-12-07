@@ -307,3 +307,11 @@ D:\projects_GitHub\Project_updates\Attendance_Student\Attendance_Student\obj\Deb
 D:\projects_GitHub\Project_updates\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.pdb
 D:\projects_GitHub\Project_updates\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.genruntimeconfig.cache
 D:\projects_GitHub\Project_updates\Attendance_Student\Attendance_Student\obj\Debug\net8.0\ref\Attendance_Student.dll
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.csproj.AssemblyReference.cache
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.AssemblyInfoInputs.cache
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.AssemblyInfo.cs
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.csproj.CoreCompileInputs.cache
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.MvcApplicationPartsAssemblyInfo.cs
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.MvcApplicationPartsAssemblyInfo.cache
+D:\projects_GitHub\Attendance_Student\Attendance_Student\obj\Debug\net8.0\Attendance_Student.sourcelink.json

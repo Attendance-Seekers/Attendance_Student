@@ -554,7 +554,6 @@ namespace Attendance_Student.Migrations
                     b.HasOne("Attendance_Student.Models.TimeTable", "timeTable")
                         .WithMany()
                         .HasForeignKey("TimeTableId")
-<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Attendance_Student.Models.Teacher", "teacher")
@@ -563,9 +562,9 @@ namespace Attendance_Student.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("teacher");
-=======
-                        .OnDelete(DeleteBehavior.SetNull);
->>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
+
+
+
 
                     b.Navigation("timeTable");
                 });
@@ -647,8 +646,6 @@ namespace Attendance_Student.Migrations
                     b.Navigation("subject");
                 });
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity("Attendance_Student.Models.TeacherAttendance", b =>
                 {
                     b.HasOne("Attendance_Student.Models.Attendance", "attendance")
@@ -668,7 +665,6 @@ namespace Attendance_Student.Migrations
                     b.Navigation("teacher");
                 });
 
->>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
             modelBuilder.Entity("Attendance_Student.Models.TimeTable", b =>
                 {
                     b.HasOne("Attendance_Student.Models.Class", "_class")

@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-﻿using Attendance_Student.DTOs.AttendanceDTOs;
+using Attendance_Student.DTOs.AttendanceDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
 using Microsoft.AspNetCore.Http;
@@ -16,13 +16,13 @@ namespace Attendance_Student.Controllers
     {
         AttendanceStudentContext _context;
         UserManager<IdentityUser> _userManager;
-        public AttendanceController(AttendanceStudentContext context , UserManager<IdentityUser> userManager)
+        public AttendanceController(AttendanceStudentContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
         [HttpPost("class/{class_id}")]
-        public async Task<IActionResult> RecordAttendance(int class_id , AttendanceDTO attendanceDTO)
+        public async Task<IActionResult> RecordAttendance(int class_id, AttendanceDTO attendanceDTO)
         {
             if (attendanceDTO == null) return BadRequest("Attendance data is required.");
 
@@ -47,7 +47,7 @@ namespace Attendance_Student.Controllers
                 var st = await _context.Students.FindAsync(studentAttendanceDTO.StudentId);
                 if (st == null)
                     return BadRequest($"Student with ID {studentAttendanceDTO.StudentId} not found.");
-                
+
                 StudentAttendance student = new StudentAttendance()
                 {
                     Status = studentAttendanceDTO.status,
@@ -69,7 +69,7 @@ namespace Attendance_Student.Controllers
             _context.Attendances.Add(attendance);
             await _context.SaveChangesAsync();
             List<SelectStudentDTO> STs = new List<SelectStudentDTO>();
-            foreach(var st in attendance.StudentsAttendance)
+            foreach (var st in attendance.StudentsAttendance)
             {
                 SelectStudentDTO student = new SelectStudentDTO()
                 {
@@ -84,7 +84,7 @@ namespace Attendance_Student.Controllers
                 Feedback = attendance.Feedback,
                 dateAttendance = attendance.dateAttendance,
                 StudentsAttendance = STs,
-                teacher_name =  teacher == null ? "" : teacher.Teacher_fullName,
+                teacher_name = teacher == null ? "" : teacher.Teacher_fullName,
                 subject_name = teacher.Subject == null ? "" : teacher.Subject.subject_Name
             };
             return Ok(selectAttendance);
@@ -95,13 +95,13 @@ namespace Attendance_Student.Controllers
             Class _class = await _context.Classes.FindAsync(class_id);
 
             if (_class == null) return BadRequest($"Class with ID {class_id} not found.");
-            List<Attendance> attendances =await _context.Attendances.Where(a => a.dateAttendance == date && a.timeTable.class_id == class_id).ToListAsync();
+            List<Attendance> attendances = await _context.Attendances.Where(a => a.dateAttendance == date && a.timeTable.class_id == class_id).ToListAsync();
             if (!attendances.Any()) return NotFound("No attendance records found for the specified day.");
             List<SelectAttendanceDTO> attendanceDTOs = new List<SelectAttendanceDTO>();
-            foreach(var attendance in attendances)
+            foreach (var attendance in attendances)
             {
                 List<SelectStudentDTO> studentDTOs = new List<SelectStudentDTO>();
-                foreach(var student in attendance.StudentsAttendance)
+                foreach (var student in attendance.StudentsAttendance)
                 {
                     SelectStudentDTO studentDTO = new SelectStudentDTO()
                     {
@@ -131,11 +131,11 @@ namespace Attendance_Student.Controllers
 
             if (_student == null) return BadRequest($"Student with ID {student_id} not found.");
             var attendances_Student = await _context.StudentAttendances.Where(s => s.StudentId == student_id).ToListAsync();
-            if(!attendances_Student.Any()) return NotFound($"No attendance records found for student ID {student_id}.");
+            if (!attendances_Student.Any()) return NotFound($"No attendance records found for student ID {student_id}.");
             List<SelectAttendaceStudentDTO> attendances_studentDTO = new List<SelectAttendaceStudentDTO>();
-            foreach(var attendanceST in attendances_Student)
+            foreach (var attendanceST in attendances_Student)
             {
-                SelectAttendaceStudentDTO selectAttendanceStudent  = new SelectAttendaceStudentDTO()
+                SelectAttendaceStudentDTO selectAttendanceStudent = new SelectAttendaceStudentDTO()
                 {
                     Id = attendanceST.AttendanceId,
                     dateAttendance = attendanceST.attendance.dateAttendance,
@@ -151,7 +151,7 @@ namespace Attendance_Student.Controllers
         }
 
         [HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
-        public async Task<IActionResult> GetAttendanceClassReport(int class_id , DateOnly start_date , DateOnly end_date)
+        public async Task<IActionResult> GetAttendanceClassReport(int class_id, DateOnly start_date, DateOnly end_date)
         {
             Class _class = await _context.Classes.FindAsync(class_id);
 
@@ -186,7 +186,7 @@ namespace Attendance_Student.Controllers
             return Ok(attendanceDTOs);
         }
         [HttpGet("report/student/{student_id}/range/{start_date}/{end_date}")]
-        public async Task<IActionResult> GetAttendanceStudentReport(string student_id , DateOnly start_date , DateOnly end_date)
+        public async Task<IActionResult> GetAttendanceStudentReport(string student_id, DateOnly start_date, DateOnly end_date)
         {
             Student _student = await _context.Students.FindAsync(student_id);
 
@@ -210,12 +210,4 @@ namespace Attendance_Student.Controllers
 
 
         }
-=======
-﻿namespace Attendance_Student.Controllers
-{
-    public class AttendanceController
-    {
->>>>>>> e2fa9efe613074e1899c9f4acf22c88a42aa25a4
-
     }
-}
