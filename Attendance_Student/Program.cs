@@ -1,6 +1,7 @@
 using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,11 @@ namespace Attendance_Student
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(op =>
             {
+                op.MapType<DateOnly>(() => new OpenApiSchema
+                {
+                    Type = "string",
+                    Format = "date"
+                });
                 op.EnableAnnotations();
                 op.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -135,6 +141,14 @@ namespace Attendance_Student
             builder.Services.AddScoped<GenericRepository<TimeTable>>();
 
             // Enable CORS
+            // Repositories
+            builder.Services.AddScoped<UnitWork>();
+            //builder.Services.AddScoped<GenericRepository<Class>>();
+            //builder.Services.AddScoped<GenericRepository<Department>>();
+
+            //builder.Services.AddScoped<GenericRepository<Subject>>();
+            //builder.Services.AddScoped<GenericRepository<TimeTable>>();
+            // enable Cross-Origin Requests CORS
             var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             builder.Services.AddCors(options =>
             {

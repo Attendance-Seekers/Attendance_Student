@@ -18,13 +18,13 @@ namespace Attendance_Student.Models
 
 
         [ForeignKey("Subject")]
-        public int SubjectId { get; set; }
+        public int? SubjectId { get; set; }
         public virtual Subject Subject { get; set; }
 
         [ForeignKey("department")]
-        public int DeptId { get; set; }
+        public int? DeptId { get; set; }
         public virtual Department department { get; set; }
 
-        public virtual List<TeacherAttendance> AttendanceRecords { get; set; } = new List<TeacherAttendance>();
+        public virtual List<Attendance> AttendanceRecords { get; set; } = new List<Attendance>();
     }
 }

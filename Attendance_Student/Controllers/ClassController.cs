@@ -2,8 +2,10 @@
 using Attendance_Student.MapperConfig;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,14 +15,18 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class ClassController : ControllerBase
     {
-        AttendanceStudentContext db;
-        GenericRepository<Class> classRepo;
+        //AttendanceStudentContext db;
+        //GenericRepository<Class> classRepo;
+        UnitWork unit;
+        UserManager<IdentityUser> userManager;
+        RoleManager<IdentityRole> roleManager;
         IMapper mapper; 
-        public ClassController(AttendanceStudentContext db, GenericRepository<Class> classRepo, IMapper mapper )
+        public ClassController(UnitWork unit, IMapper mapper, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager)
         {
-            this.db = db;
-            this.classRepo = classRepo;
+            this.unit = unit;
             this.mapper = mapper;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
         }
         [HttpGet]
         [SwaggerOperation
@@ -35,7 +41,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectAllClasses()
         {
             //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            List<Class> classes = classRepo.selectAll();
+            List<Class> classes = unit.ClassRepo.selectAll();
            
             if (classes.Count < 0) return NotFound();
             else
@@ -61,7 +67,7 @@ namespace Attendance_Student.Controllers
             }
         }
 
-        [HttpGet("/{id:int}")]
+        [HttpGet("{id:int}")]
         [SwaggerOperation(
          Summary = "Retrieves a class by ID",
          Description = "Fetches a single class details based on its unique ID"
@@ -74,7 +80,7 @@ namespace Attendance_Student.Controllers
         public IActionResult selectClassById(int id)
         {
 
-            Class _class = classRepo.selectById(id);
+            Class _class = unit.ClassRepo.selectById(id);
 
 
             if (_class == null) return NotFound();
@@ -111,17 +117,20 @@ namespace Attendance_Student.Controllers
             {
 
                 Class newClass = mapper.Map<Class>(_classDTO);
+                List < Student > students = new List<Student>();
+                foreach (var studentId in _classDTO.studentsIDs) 
+                {
+                    var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                    students.Add(student);
 
+                }
+                newClass.students = students;
 
-                //Console.WriteLine(  "i'm being addded");
-                classRepo.add(newClass);
-
-
-                //Console.WriteLine( "i have been added sucessfully" );
-                classRepo.save();
+              
+                unit.ClassRepo.add(newClass);
+                unit.ClassRepo.save();
                 return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _classDTO);
-                //return Ok();
-
+                
             }
         }
         [HttpPut]
@@ -136,13 +145,39 @@ namespace Attendance_Student.Controllers
 
             if (ModelState.IsValid) 
             {
-                var _class = classRepo.selectById(_classDTO.Class_Id);
+                var _class = unit.ClassRepo.selectById(_classDTO.Class_Id);
                 if (_class == null) return NotFound();
                 else 
                 {
                     mapper.Map(_classDTO,_class);
-                    classRepo.update(_class);
-                    classRepo.save();
+
+                    if (_classDTO.flagAddOrOverwrite)  // if true , clear all the students within the current class
+                    {
+                        _class.students.Clear();
+                        List<Student> students = new List<Student>();
+                        foreach (var studentId in _classDTO.studentsIDs)
+                        {
+                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                            students.Add(student);
+
+                        }
+                        _class.students = students;
+
+
+                    }
+                    else
+                    {
+                        
+                        foreach (var studentId in _classDTO.studentsIDs)
+                        {
+                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                            _class.students.Add(student);
+
+                        }
+                        
+                    }
+                    unit.ClassRepo.update(_class);
+                    unit.ClassRepo.save();
                     return Ok();
                 }
             }
@@ -159,14 +194,15 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
         public IActionResult deleteClassById(int id)
         {
-            var _class = classRepo.selectById(id);
+            var _class = unit.ClassRepo.selectById(id);
             if (_class == null)
             {
                 return NotFound();
             }
             else 
             {
-                classRepo.remove(_class);
+                unit.ClassRepo.remove(_class);
+                unit.ClassRepo.save();
                 return Ok();
             }
 

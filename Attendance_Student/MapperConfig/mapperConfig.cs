@@ -1,14 +1,14 @@
 ﻿using Attendance_Student.DTOs.AdminDTOs;
 using Attendance_Student.DTOs.ClassDTO;
+using Attendance_Student.DTOs.DepartmentDTO;
+using Attendance_Student.DTOs.ParentDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.DTOs.TeacherDTO;
 using Attendance_Student.DTOs.TimeTableDTO;
-
 using Attendance_Student.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Attendance_Student.DTOs.ParentDTOs;
 
 namespace Attendance_Student.MapperConfig
 {
@@ -55,6 +55,14 @@ namespace Attendance_Student.MapperConfig
             CreateMap<ParentCreateDto, Parent>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
+            // Department mappers
+            CreateMap<Department, SelectDepartmentDTO>().ReverseMap();
+            CreateMap<AddDepartmentDTO, Department>().ReverseMap();
+            CreateMap<EditDepartmentDTO, Department>().ReverseMap();
+            CreateMap<Teacher, CustomSelectTeacherDTO>().ReverseMap();
+            CreateMap<Subject, CustomSelectSubjectDTO>().ReverseMap();
+
+            // Additional Parent-Student mappers
             CreateMap<Parent, ParentResponseDto>();
             CreateMap<ParentUpdateDto, Parent>();
 

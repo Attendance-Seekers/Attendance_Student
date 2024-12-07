@@ -9,8 +9,8 @@ namespace Attendance_Student.DTOs.ClassDTO
         public string Class_Name { get; set; }
         public int Class_Size { get; set; } // max no of student
 
-        public List<Student>? Students { get; set; }
-        public TimeTable? timeTable { get; set; }
+        public List<string>? studentsIDs { get; set; }
+        //public TimeTable? timeTable { get; set; }
 
     }
 }

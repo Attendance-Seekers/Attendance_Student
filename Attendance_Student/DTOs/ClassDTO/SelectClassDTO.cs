@@ -1,4 +1,5 @@
-﻿using Attendance_Student.Models;
+﻿using Attendance_Student.DTOs.StudentDTO;
+using Attendance_Student.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Attendance_Student.DTOs.ClassDTO
@@ -10,8 +11,8 @@ namespace Attendance_Student.DTOs.ClassDTO
         public string Class_Name { get; set; }
         public int Class_Size { get; set; } // max no of student
 
-        public List<Student> students { get; set; }
-        public TimeTable timeTable { get; set; }
+        public List<SelectStudentDTO> students { get; set; }
+        //public TimeTable timeTable { get; set; }
 
 
     }

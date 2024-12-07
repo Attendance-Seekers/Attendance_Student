@@ -8,5 +8,7 @@ namespace Attendance_Student.DTOs.ClassDTO
         [Required]
         public int Class_Id { get; set; }
 
+        public virtual bool flagAddOrOverwrite { get; set; } = false; // false : add , true; overwrite
+
     }
 }
