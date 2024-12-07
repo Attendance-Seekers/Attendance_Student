@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 using Attendance_Student.DTOs.AttendanceDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
@@ -210,4 +210,5 @@ namespace Attendance_Student.Controllers
 
 
         }
-    }
+    } 
+}
