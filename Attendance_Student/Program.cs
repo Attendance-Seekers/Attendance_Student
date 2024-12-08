@@ -78,8 +78,8 @@ namespace Attendance_Student
             );
 
             // Configure Identity
-           // Configure Identity for multiple user types
-            builder.Services.AddIdentityCore<IdentityUser>(options =>
+            // Configure Identity for multiple user types
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -88,8 +88,8 @@ namespace Attendance_Student
                 options.Password.RequiredLength = 6;
                 options.User.RequireUniqueEmail = true;
             })
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<AttendanceStudentContext>();
+            .AddEntityFrameworkStores<AttendanceStudentContext>()
+            .AddDefaultTokenProviders();
 
             // Add UserManager for Parent
             builder.Services.AddIdentityCore<Parent>(options =>
@@ -101,7 +101,7 @@ namespace Attendance_Student
                 options.Password.RequiredLength = 6;
                 options.User.RequireUniqueEmail = true;
             })
-              .AddRoles<IdentityRole>()
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AttendanceStudentContext>()
             .AddDefaultTokenProviders()
             .AddUserManager<UserManager<Parent>>();
@@ -135,19 +135,11 @@ namespace Attendance_Student
                 options.AddPolicy("ParentPolicy", policy => policy.RequireRole("Parent"));
             });
 
-            // Dependency Injection for Repositories
-            builder.Services.AddScoped<GenericRepository<Class>>();
-            builder.Services.AddScoped<GenericRepository<Subject>>();
-            builder.Services.AddScoped<GenericRepository<TimeTable>>();
 
             // Enable CORS
             // Repositories
             builder.Services.AddScoped<UnitWork>();
-            //builder.Services.AddScoped<GenericRepository<Class>>();
-            //builder.Services.AddScoped<GenericRepository<Department>>();
 
-            //builder.Services.AddScoped<GenericRepository<Subject>>();
-            //builder.Services.AddScoped<GenericRepository<TimeTable>>();
             // enable Cross-Origin Requests CORS
             var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             builder.Services.AddCors(options =>

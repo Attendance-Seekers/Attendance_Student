@@ -2,9 +2,11 @@
 using Attendance_Student.DTOs.ParentDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
+using Attendance_Student.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Attendance_Student.Controllers
 {
@@ -12,12 +14,17 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class NotificationsController : ControllerBase
     {
-        AttendanceStudentContext _context;
-        public NotificationsController(AttendanceStudentContext context) 
+        UnitWork _unit;
+        public NotificationsController(UnitWork unit) 
         {
-            _context = context;
+            _unit = unit;
         }
         [HttpPost("send")]
+        [SwaggerOperation(Summary = "Send notifications to parents", Description = "Sends notifications to parents regarding their students' attendance status.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Notifications sent successfully.", Type = typeof(List<SelectNotificationDTO>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid notification data or student/parent/admin not found.")]
+        [Produces("application/json")]
+        [Consumes("application/json")]
         public async Task<IActionResult> SendNotifications(SendNotificationDTO sendNotification)
         {
             if (sendNotification == null) return BadRequest("Invalid notification data");
@@ -30,7 +37,7 @@ namespace Attendance_Student.Controllers
 
             foreach(var studentSelectDto in sendNotification.Students)
             {
-                Student student = await _context.Students.FindAsync(studentSelectDto.id);
+                Student student = await _unit.StudentRepo.selectUserById(studentSelectDto.id);
 
                 if (student == null) return BadRequest($"Student with ID {studentSelectDto.id} not found.");
 
@@ -38,16 +45,15 @@ namespace Attendance_Student.Controllers
 
                 sts.Add(student);
             }
-            //var studentIds = sendNotification.Students.Select(s => s.id).ToList();
-            //var students = await _context.Students.Include(s => s.parent).Where(s => studentIds.Contains(s.Id)).ToListAsync();
+
             var groupedByParent = sts.GroupBy(s => s.parent.Id);
 
-            //List<Student> students = new List<Student>();
+
             foreach(var group in groupedByParent)
             {
-                Parent parent = await _context.Parents.FindAsync(group.Key);
+                Parent parent = await _unit.ParentRepo.selectUserById(group.Key);
                 if (parent == null) return BadRequest("Parent not found.");
-                var admin = await _context.Admins.FindAsync(sendNotification.admin_id);
+                var admin = await _unit.AdminReop.selectUserById(sendNotification.admin_id);
                 if (admin == null) return BadRequest("Admin not found.");
                 Notification notification = new Notification()
                 {
@@ -60,8 +66,8 @@ namespace Attendance_Student.Controllers
                 notifications.Add(notification);
 
             }
-            await _context.Notifications.AddRangeAsync(notifications);
-            await _context.SaveChangesAsync();
+            await _unit.NotificationFuncRepository.AddNotifications(notifications);
+            await _unit.Save();
             List<SelectNotificationDTO> selectNotifications = new List<SelectNotificationDTO>();
             foreach(var notification in notifications)
             {
@@ -96,13 +102,17 @@ namespace Attendance_Student.Controllers
             return Ok(selectNotifications);
         }
 
-            [HttpGet]
-            public async Task<IActionResult> RecieveNotifications(string parent_id)
+        [HttpGet]
+        [SwaggerOperation(Summary = "Receive notifications for a parent", Description = "Retrieves notifications for a specific parent and includes the attendance status of their children.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Notifications received successfully.", Type = typeof(List<SelectNotificationDTO>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "No notifications found for the given parent ID.")]
+        [Produces("application/json")]
+        public async Task<IActionResult> ReceiveNotifications(string parent_id)
             {
-                List<Notification> notifications = await _context.Notifications.Where(n => n.Parent_Id == parent_id).ToListAsync();
+                List<Notification> notifications = await _unit.NotificationFuncRepository.GetNotificationOfParent(parent_id);
                 if (!notifications.Any()) return BadRequest("No notifications found.");
 
-                var students = await _context.Students.Where(s => s.ParentId ==  parent_id ).ToListAsync();
+                var students = await _unit.NotificationFuncRepository.GetStudentsFromParent(parent_id);
 
 
                 List<SelectNotificationDTO> selectNotifications = new List<SelectNotificationDTO>();

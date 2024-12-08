@@ -7,6 +7,7 @@ using Attendance_Student.DTOs.AdminDTOs;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Attendance_Student.UnitOfWorks;
 
 namespace Attendance_Student.Controllers
 {
@@ -14,14 +15,13 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UnitWork _unit;
+        
         private readonly IMapper _mapper;
 
-        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
+        public AdminController(UnitWork unit, IMapper mapper)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _unit = unit;
             _mapper = mapper;
         }
 
@@ -31,10 +31,10 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "No admins found")]
         public async Task<IActionResult> GetAllAdmins()
         {
-            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            var admins = await _unit.UserReps.GetUsersWithRole("Admin");
 
             if (!admins.Any())
-                return NotFound();
+                return NotFound("No admins found in the system.");
 
             var adminDTOs = _mapper.Map<List<AdminDTO>>(admins);
             return Ok(adminDTOs);
@@ -46,9 +46,9 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Admin not found")]
         public async Task<IActionResult> GetAdminById(string id)
         {
-            var admin = await _userManager.FindByIdAsync(id);
-            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
-                return NotFound();
+            Admin admin =(Admin) await _unit.UserReps.GetUserById(id);
+            if (admin == null || !(await _unit.UserReps.checkUserRole(admin , "Admin")))
+                return NotFound($"Admin with ID '{id}' not found.");
 
             var adminDTO = _mapper.Map<AdminDTO>(admin);
             return Ok(adminDTO);
@@ -64,12 +64,12 @@ namespace Attendance_Student.Controllers
                 return BadRequest(ModelState);
 
             var newAdmin = _mapper.Map<IdentityUser>(adminDTO);
-            var createResult = await _userManager.CreateAsync(newAdmin, adminDTO.Password);
+            var createResult = await _unit.UserReps.CreateUser(newAdmin, adminDTO.Password);
 
             if (!createResult.Succeeded)
                 return BadRequest(createResult.Errors);
 
-            var roleResult = await _userManager.AddToRoleAsync(newAdmin, "Admin");
+            var roleResult = await _unit.UserReps.AddRole(newAdmin, "Admin");
             if (!roleResult.Succeeded)
                 return BadRequest(roleResult.Errors);
 
@@ -83,12 +83,12 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Admin not found")]
         public async Task<IActionResult> UpdateAdmin(string id, [FromForm] EditAdminDTO adminDTO)
         {
-            var admin = await _userManager.FindByIdAsync(id);
-            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
-                return NotFound();
+            Admin admin = (Admin)await _unit.UserReps.GetUserById(id);
+            if (admin == null || !await _unit.UserReps.checkUserRole(admin, "Admin"))
+                return NotFound($"Admin with ID '{id}' not found.");
 
             _mapper.Map(adminDTO, admin);
-            var updateResult = await _userManager.UpdateAsync(admin);
+            var updateResult = await _unit.UserReps.UpdateUser(admin);
 
             if (!updateResult.Succeeded)
                 return BadRequest(updateResult.Errors);
@@ -102,16 +102,16 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Admin not found")]
         public async Task<IActionResult> DeleteAdmin(string id)
         {
-            var admin = await _userManager.FindByIdAsync(id);
-            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
-                return NotFound();
+            var admin = await _unit.UserReps.GetUserById(id);
+            if (admin == null || !await _unit.UserReps.checkUserRole(admin, "Admin"))
+                return NotFound($"Admin with ID '{id}' not found.");
 
-            var deleteResult = await _userManager.DeleteAsync(admin);
+            var deleteResult = await _unit.UserReps.RemoveUser(admin);
 
             if (!deleteResult.Succeeded)
                 return BadRequest(deleteResult.Errors);
 
-            return Ok();
+            return Ok("Admin deleted successfully.");
         }
     }
 }

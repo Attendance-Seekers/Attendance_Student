@@ -15,18 +15,13 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class ClassController : ControllerBase
     {
-        //AttendanceStudentContext db;
-        //GenericRepository<Class> classRepo;
-        UnitWork unit;
-        UserManager<IdentityUser> userManager;
-        RoleManager<IdentityRole> roleManager;
+        UnitWork _unit;
+
         IMapper mapper; 
-        public ClassController(UnitWork unit, IMapper mapper, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager)
+        public ClassController(UnitWork unit, IMapper mapper)
         {
-            this.unit = unit;
+            _unit = unit;
             this.mapper = mapper;
-            this.userManager = userManager;
-            this.roleManager = roleManager;
         }
         [HttpGet]
         [SwaggerOperation
@@ -38,100 +33,65 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "No classes found")]
         [Produces("application/json")]
 
-        public IActionResult selectAllClasses()
+        public async Task<IActionResult> selectAllClasses()
         {
-            //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            List<Class> classes = unit.ClassRepo.selectAll();
+            List<Class> classes = await _unit.ClassRepo.selectAll();
            
-            if (classes.Count < 0) return NotFound();
-            else
-            {
+            if (classes.Count < 0) return NotFound("No classes found.");
 
-                var classDTO = mapper.Map<List<SelectClassDTO>>(classes);
-
-                //foreach (Class _class in classes)
-                //{
-
-                //    ClassDTO class1 = new ClassDTO()
-                //    {
-                //        Class_Id = _class.Class_Id,
-                //        Class_Name = _class.Class_Name,
-                //        Class_Size = _class.Class_Size
-
-
-                //    };
-                //    classDTO.Add(class1);
-
-                //}
-                return Ok(classDTO);
-            }
+            var classDTO = mapper.Map<List<SelectClassesDTO>>(classes);   
+            return Ok(classDTO);
+            
         }
 
         [HttpGet("{id:int}")]
-        [SwaggerOperation(
-         Summary = "Retrieves a class by ID",
-         Description = "Fetches a single class details based on its unique ID"
-            )]
+        [SwaggerOperation(Summary = "Retrieves a class by ID", Description = "Fetches a single class details based on its unique ID")]
         [SwaggerResponse(200, "Successfully retrieved the class", typeof(SelectClassDTO))]
-        [SwaggerResponse(404, "class not found")]
+        [SwaggerResponse(404, "Class not found")]
         [Produces("application/json")]
 
-
-        public IActionResult selectClassById(int id)
+        public async Task<IActionResult> selectClassById(int id)
         {
 
-            Class _class = unit.ClassRepo.selectById(id);
+            Class _class = await _unit.ClassRepo.selectById(id);
 
+            if (_class == null) return NotFound("Class not found.");
 
-            if (_class == null) return NotFound();
-            else
-            {
-                var classDTO = mapper.Map<SelectClassDTO>(_class);
-                //ClassDTO classDTO = new ClassDTO()
-                //{
-                //    Class_Id = _class.Class_Id,
-                //    Class_Name = _class.Class_Name,
-                //    Class_Size = _class.Class_Size
-
-                //};
-                return Ok(classDTO);
-            }
+            var classDTO = mapper.Map<SelectClassDTO>(_class);
+            return Ok(classDTO);
+            
 
         }
         [HttpPost]
         [SwaggerOperation(
-    Summary = "Creates a new Class",
-    Description = "Adds a new Class info to the system. Requires admin privileges.")] // didn't do the admins yet
+            Summary = "Creates a new Class",
+            Description = "Adds a new Class info to the system. Requires admin privileges.")] // didn't do the admins yet
         [SwaggerResponse(201, "The Class was created")]
         [SwaggerResponse(400, "The Class data is invalid")]
-        //[Produces("application/json")]
-        //[Consumes("application/json")]
-        public IActionResult addClass( AddClassDTO _classDTO)
+
+        public async Task<IActionResult> addClass( AddClassDTO _classDTO)
         {
 
             if (!ModelState.IsValid)
+                return NotFound("Invalid data provided.");
+            
+            Class newClass = mapper.Map<Class>(_classDTO);
+            List < Student > students = new List<Student>();
+
+            foreach (var studentId in _classDTO.studentsIDs) 
             {
-                return NotFound();
+                var student = (Student)_unit.UserReps.GetUsersWithRole("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                students.Add(student);
+
             }
-            else
-            {
-
-                Class newClass = mapper.Map<Class>(_classDTO);
-                List < Student > students = new List<Student>();
-                foreach (var studentId in _classDTO.studentsIDs) 
-                {
-                    var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
-                    students.Add(student);
-
-                }
-                newClass.students = students;
+            newClass.students = students;
 
               
-                unit.ClassRepo.add(newClass);
-                unit.ClassRepo.save();
-                return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _classDTO);
+            await _unit.ClassRepo.add(newClass);
+            await _unit.Save();
+            return CreatedAtAction("selectClassById", new { id = newClass.Class_Id }, _classDTO);
                 
-            }
+            
         }
         [HttpPut]
         [SwaggerOperation(Summary = "Edit an existing Class", Description = "Updates an existing Class with new details. Requires admin privileges.")]
@@ -140,50 +100,44 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "Class not found.")]
         [Produces("application/json")]
         [Consumes("application/json")]
-        public IActionResult editClass(EditClassDTO _classDTO) 
+        public async Task<IActionResult> editClass(EditClassDTO _classDTO) 
         {
 
-            if (ModelState.IsValid) 
+            if (!ModelState.IsValid) return BadRequest("Invalid data provided.");
+
+            
+            var _class = await _unit.ClassRepo.selectById(_classDTO.Class_Id);
+            if (_class == null) return NotFound("Class not found.");
+
+            mapper.Map(_classDTO,_class);
+
+            if (_classDTO.flagAddOrOverwrite)  // if true , clear all the students within the current class
             {
-                var _class = unit.ClassRepo.selectById(_classDTO.Class_Id);
-                if (_class == null) return NotFound();
-                else 
+                _class.students.Clear();
+                List<Student> students = new List<Student>();
+                foreach (var studentId in _classDTO.studentsIDs)
                 {
-                    mapper.Map(_classDTO,_class);
+                    var student = (Student) _unit.UserReps.GetUsersWithRole("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                    if (student != null) students.Add(student);
 
-                    if (_classDTO.flagAddOrOverwrite)  // if true , clear all the students within the current class
-                    {
-                        _class.students.Clear();
-                        List<Student> students = new List<Student>();
-                        foreach (var studentId in _classDTO.studentsIDs)
-                        {
-                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
-                            students.Add(student);
-
-                        }
-                        _class.students = students;
-
-
-                    }
-                    else
-                    {
-                        
-                        foreach (var studentId in _classDTO.studentsIDs)
-                        {
-                            var student = (Student)userManager.GetUsersInRoleAsync("Student").Result.FirstOrDefault(t => t.Id == studentId);
-                            _class.students.Add(student);
-
-                        }
-                        
-                    }
-                    unit.ClassRepo.update(_class);
-                    unit.ClassRepo.save();
-                    return Ok();
                 }
-            }
-            else { return BadRequest(); }
+                _class.students = students;
 
-        
+            }
+            else
+            {
+                        
+                foreach (var studentId in _classDTO.studentsIDs)
+                {
+                    var student = (Student)_unit.UserReps.GetUsersWithRole("Student").Result.FirstOrDefault(t => t.Id == studentId);
+                    if (student != null) _class.students.Add(student);
+
+                }
+                        
+            }
+            _unit.ClassRepo.update(_class);
+            await _unit.Save();
+            return Ok("Class updated successfully.");
         }
 
 
@@ -192,20 +146,15 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Class deleted successfully.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Class not found.")]
         [Produces("application/json")]
-        public IActionResult deleteClassById(int id)
+        public async Task<IActionResult> deleteClassById(int id)
         {
-            var _class = unit.ClassRepo.selectById(id);
-            if (_class == null)
-            {
-                return NotFound();
-            }
-            else 
-            {
-                unit.ClassRepo.remove(_class);
-                unit.ClassRepo.save();
-                return Ok();
-            }
+            var _class = await _unit.ClassRepo.selectById(id);
+            if (_class == null) return NotFound("Class not found.");
 
+            _unit.ClassRepo.remove(_class);
+            await _unit.Save();
+            return Ok("Class deleted successfully.");
+            
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Attendance_Student.UnitOfWorks;
 
 namespace Attendance_Student.Controllers
 {
@@ -15,21 +16,15 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class ParentController : ControllerBase
     {
-        private readonly UserManager<Parent> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        UnitWork _unit;
         private readonly IMapper _mapper;
-        private readonly AttendanceStudentContext _context;
 
         public ParentController(
-            UserManager<Parent> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IMapper mapper,
-            AttendanceStudentContext context)
+            UnitWork unit,
+            IMapper mapper)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _unit = unit;
             _mapper = mapper;
-            _context = context;
         }
 
         [HttpGet]
@@ -38,7 +33,7 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "No parents found")]
         public async Task<IActionResult> GetAllParents()
         {
-            var parents = await _userManager.Users.ToListAsync();
+            var parents = await _unit.UserReps.GetUsers();
 
             if (!parents.Any())
                 return NotFound();
@@ -53,7 +48,7 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Parent not found")]
         public async Task<IActionResult> GetParentById(string id)
         {
-            var parent = await _userManager.FindByIdAsync(id);
+            var parent = await _unit.UserReps.GetUserById(id);
             if (parent == null)
                 return NotFound();
 
@@ -71,7 +66,7 @@ namespace Attendance_Student.Controllers
                 return BadRequest(ModelState);
 
             var newParent = _mapper.Map<Parent>(parentDTO);
-            var createResult = await _userManager.CreateAsync(newParent, parentDTO.Password);
+            var createResult = await _unit.UserReps.CreateUser(newParent, parentDTO.Password);
 
             if (!createResult.Succeeded)
                 return BadRequest(createResult.Errors);
@@ -86,12 +81,12 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Parent not found")]
         public async Task<IActionResult> UpdateParent(string id, [FromForm] ParentUpdateDto parentDTO)
         {
-            var parent = await _userManager.FindByIdAsync(id);
+            var parent = await _unit.UserReps.GetUserById(id);
             if (parent == null)
-                return NotFound();
+                return NotFound($"No Parent found with the id: {id}.");
 
             _mapper.Map(parentDTO, parent);
-            var updateResult = await _userManager.UpdateAsync(parent);
+            var updateResult = await _unit.UserReps.UpdateUser(parent);
 
             if (!updateResult.Succeeded)
                 return BadRequest(updateResult.Errors);
@@ -105,11 +100,11 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Parent not found")]
         public async Task<IActionResult> DeleteParent(string id)
         {
-            var parent = await _userManager.FindByIdAsync(id);
+            var parent = await _unit.UserReps.GetUserById(id);
             if (parent == null)
-                return NotFound();
+                return NotFound($"No Parent found with the id: {id}.");
 
-            var deleteResult = await _userManager.DeleteAsync(parent);
+            var deleteResult = await _unit.UserReps.RemoveUser(parent);
 
             if (!deleteResult.Succeeded)
                 return BadRequest(deleteResult.Errors);
@@ -129,13 +124,10 @@ namespace Attendance_Student.Controllers
             [FromQuery] DateOnly startDate,
             [FromQuery] DateOnly endDate)
         {
-            var student = await _context.Students
-                .Include(s => s.viewAttendances)
-                    .ThenInclude(va => va.attendance)
-                .FirstOrDefaultAsync(s => s.Id == studentId);
+            var student = await _unit.StudentRepo.selectUserById(studentId);
 
             if (student == null)
-                return NotFound();
+                return NotFound($"No Student found with the id: {studentId}.");
 
             var attendanceRecords = student.viewAttendances
                 .Where(va => va.attendance.dateAttendance >= startDate &&

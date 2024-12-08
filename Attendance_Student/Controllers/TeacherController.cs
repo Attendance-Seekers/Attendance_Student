@@ -1,6 +1,7 @@
 ﻿using Attendance_Student.DTOs.TeacherDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
+using Attendance_Student.UnitOfWorks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,12 +18,10 @@ namespace Attendance_Student.Controllers
         //AttendanceStudentContext db;
         //GenericRepository<Teacher> teacherRepo;
         IMapper mapper;
-        UserManager<IdentityUser> userManager;
-        RoleManager<IdentityRole> roleManager;
-        public TeacherController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
+        UnitWork _unit;
+        public TeacherController(UnitWork unit, IMapper mapper)
         {
-            this.roleManager = roleManager;
-            this.userManager = userManager;
+            _unit = unit;
             this.mapper = mapper;
         }
         [HttpGet]
@@ -39,7 +38,7 @@ namespace Attendance_Student.Controllers
         {
             //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
             //List<Teacher> Teachers = teacherRepo.selectAll();
-            var teachers = userManager.GetUsersInRoleAsync("Teacher").Result.OfType<Teacher>().ToList();
+            var teachers = _unit.UserReps.GetUsersWithRole("Teacher").Result.OfType<Teacher>().ToList();
 
             if (!teachers.Any()) return NotFound();
             else
@@ -61,11 +60,11 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
 
 
-        public IActionResult selectTeacherById(string id)
+        public async Task<IActionResult> selectTeacherById(string id)
         {
 
             //Teacher teacher = teacherRepo.selectById(id);
-            var teacher = (Teacher)userManager.GetUsersInRoleAsync("Teacher").Result.FirstOrDefault(t => t.Id == id);
+            var teacher = (Teacher) _unit.UserReps.GetUsersWithRole("Teacher").Result.FirstOrDefault(t => t.Id == id);
 
 
             if (teacher == null) return NotFound();
@@ -98,10 +97,10 @@ namespace Attendance_Student.Controllers
                 Teacher newTeacher = mapper.Map<Teacher>(teacherDTO);
 
 
-                var createTeacherPass = userManager.CreateAsync(newTeacher, teacherDTO.password).Result;
+                var createTeacherPass = _unit.UserReps.CreateUser(newTeacher, teacherDTO.password).Result;
                 if (createTeacherPass.Succeeded)
                 {
-                    var addingToTeacherResult = userManager.AddToRoleAsync(newTeacher, "Teacher").Result;
+                    var addingToTeacherResult = _unit.UserReps.AddRole(newTeacher, "Teacher").Result;
                     if (addingToTeacherResult.Succeeded) { return Ok(); }
                     else { return BadRequest(addingToTeacherResult.Errors); }
 
@@ -123,12 +122,12 @@ namespace Attendance_Student.Controllers
             if (ModelState.IsValid)
             {
                 //var teacherName= User.Identity.Name;
-                var teacher = userManager.FindByIdAsync(teacherDTO.Id).Result;
+                var teacher = _unit.UserReps.GetUserById(teacherDTO.Id).Result;
                 if (teacher == null) return NotFound();
                 else
                 {
                     mapper.Map(teacherDTO, teacher);
-                    var updateTeacher = userManager.UpdateAsync(teacher).Result;
+                    var updateTeacher = _unit.UserReps.UpdateUser(teacher).Result;
                     if (updateTeacher.Succeeded) { return Ok(); }
                     else { return BadRequest(updateTeacher.Errors); }
 
@@ -145,44 +144,32 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Teacher deleted successfully.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Teacher not found.")]
         [Produces("application/json")]
-        public IActionResult deleteTeacherById(string id)
+        public Task<IActionResult> deleteTeacherById(string id)
         {
-            var teacher = userManager.FindByIdAsync(id).Result;
+            var teacher = _unit.UserReps.GetUserById(id).Result;
             if (teacher == null)
             {
-                return NotFound();
+                return Task.FromResult<IActionResult>(NotFound());
             }
             else
             {
                 // Remove roles associated with the user
-                var roles = userManager.GetRolesAsync(teacher).Result;
+                var roles = _unit.UserReps.GetRoles(teacher).Result;
                 foreach (var role in roles)
                 {
-                    userManager.RemoveFromRoleAsync(teacher, role).Wait();
+                    _unit.UserReps.RemoveUserFromRole(teacher, role).Wait();
                 }
-                var res = userManager.DeleteAsync(teacher).Result;
+                var res = _unit.UserReps.RemoveUser(teacher).Result;
                 if (res.Succeeded)
                 {
-                    return Ok();
+                    return Task.FromResult<IActionResult>(Ok());
                 }
                 else
-                { return BadRequest(res.Errors); }
+                { return Task.FromResult<IActionResult>(BadRequest(res.Errors)); }
             }
 
         }
 
-        //        [HttpGet("/{id}/classes")]
-        //        public IActionResult getTeacherClasses(string id) 
-        //        { 
-
-
-
-
-        //        }
-        //[HttpPost("/{teacher_id}/attendance/class/{class_id}")]
-        //public IActionResult addReport(string teacher_id, int class_id) 
-        //{
-        //}
     }
 }
 

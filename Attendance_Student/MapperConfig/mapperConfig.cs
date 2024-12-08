@@ -2,6 +2,7 @@
 using Attendance_Student.DTOs.ClassDTO;
 using Attendance_Student.DTOs.DepartmentDTO;
 using Attendance_Student.DTOs.ParentDTOs;
+using Attendance_Student.DTOs.ScheduleDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.DTOs.TeacherDTO;
@@ -17,9 +18,13 @@ namespace Attendance_Student.MapperConfig
         public mapperConfig()
         {
             // Class mappers
-            CreateMap<Class, SelectClassDTO>().ReverseMap();
+            CreateMap<Class, SelectClassDTO>()
+                .ForMember(dest => dest.students, opt => opt.MapFrom(src => src.students))
+                .ForMember(dest => dest.timeTable, opt => opt.MapFrom(src => src.timeTable))
+                .ReverseMap();
             CreateMap<AddClassDTO, Class>().ReverseMap();
             CreateMap<EditClassDTO, Class>().ReverseMap();
+            CreateMap<Class, SelectClassesDTO>().ReverseMap();
 
             // Subject mappers
             CreateMap<Subject, SelectSubjectDTO>().ReverseMap();
@@ -27,9 +32,21 @@ namespace Attendance_Student.MapperConfig
             CreateMap<EditSubjectDTO, Subject>().ReverseMap();
 
             // TimeTable mappers
-            CreateMap<TimeTable, SelectTimeTableDTO>().ReverseMap();
+            CreateMap<TimeTable, SelectTimeTableDTO>()
+                .ForMember(dest => dest.daySchedules, opt => opt.MapFrom(src => src.DaySchedules))
+                .ReverseMap();
             CreateMap<AddTimeTableDTO, TimeTable>().ReverseMap();
             CreateMap<EditTimeTableDTO, TimeTable>().ReverseMap();
+
+            // Schedule mappers
+            CreateMap<DaySchedule, DayScheduleDTO>()
+               .ForMember(dest => dest.subjectDaySchedules, opt => opt.MapFrom(src => src.subjectsScheduled))
+               .ReverseMap();
+            CreateMap<SubjectDaySchedule, SubjectDayScheduleDTO>()
+                .AfterMap((src , dest) =>
+                {
+                    dest.subject_Name = src.subject.subject_Name;
+                }).ReverseMap();
 
             // Teacher mappers
             CreateMap<Teacher, SelectTeacherDTO>().ReverseMap();

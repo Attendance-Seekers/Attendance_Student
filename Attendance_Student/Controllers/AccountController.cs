@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Attendance_Student.Models;
 using Attendance_Student.DTOs.Account_DTOs;
+using Attendance_Student.UnitOfWorks;
 
 namespace Attendance_Student.Controllers
 {
@@ -15,58 +16,48 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UnitWork _unit;
 
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
             IConfiguration configuration,
-            RoleManager<IdentityRole> roleManager)
+            UnitWork unit)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _unit = unit;
             _configuration = configuration;
-            _roleManager = roleManager;
         }
 
         [HttpPost("register")]
-[SwaggerOperation(Summary = "Register a new user", Description = "Creates a new user account.")]
-[SwaggerResponse(StatusCodes.Status200OK, "Registration successful.")]
-[SwaggerResponse(StatusCodes.Status400BadRequest, "Validation errors or registration failure.")]
-public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
-{
+        [SwaggerOperation(Summary = "Register a new user", Description = "Creates a new user account.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Registration successful.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Validation errors or registration failure.")]
+        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
+        {
    
-    if (!await _roleManager.RoleExistsAsync(registerDto.Role))
-    {
-        return BadRequest($"Role '{registerDto.Role}' does not exist.");
-    }
 
-    var user = new IdentityUser
-    {
-        UserName = registerDto.Username,
-        Email = registerDto.Email,
-        PhoneNumber = registerDto.Phone
-    };
+            Student user = new Student()
+            {
+                UserName = registerDto.Username,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.Phone
+            };
 
     
-    var result = await _userManager.CreateAsync(user, registerDto.Password);
+            var result = await _unit.UserReps.CreateUser(user, registerDto.Password);
 
-    if (result.Succeeded)
-    {
+            if (result.Succeeded)
+            {
         
-        await _userManager.AddToRoleAsync(user, registerDto.Role);
+                await _unit.UserReps.AddRole(user, registerDto.Role);
 
        
 
-        return Ok(new { Message = "Registration successful", UserId = user.Id });
-    }
+                return Ok(new { Message = "Registration successful", UserId = user.Id , Username = user.UserName });
+            }
 
-    return BadRequest(result.Errors);
-}
+            return BadRequest(result.Errors);
+        }
 
 
 
@@ -76,17 +67,12 @@ public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Invalid username or password.")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(
-                loginDto.Username,
-                loginDto.Password,
-                isPersistent: false,
-                lockoutOnFailure: false
-            );
+            var result = await _unit.UserReps.UserSignIn(loginDto);
 
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByNameAsync(loginDto.Username);
-                var roles = await _userManager.GetRolesAsync(user);
+                var user = await _unit.UserReps.GetUserByName(loginDto.Username);
+                var roles = await _unit.UserReps.GetRoles(user);
 
                 var claims = new List<Claim>
                 {
@@ -126,12 +112,12 @@ public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Failed to change password.")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDto)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var user = await _unit.UserReps.GetUserByName(User.Identity.Name);
 
             if (user == null)
                 return Unauthorized();
 
-            var result = await _userManager.ChangePasswordAsync(
+            var result = await _unit.UserReps.ChangePassword(
                 user,
                 changePasswordDto.OldPassword,
                 changePasswordDto.NewPassword
@@ -149,7 +135,7 @@ public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         [SwaggerResponse(StatusCodes.Status200OK, "Logged out successfully.")]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await _unit.UserReps.Logout();
             return Ok(new { Message = "Logged out successfully." });
         }
     }

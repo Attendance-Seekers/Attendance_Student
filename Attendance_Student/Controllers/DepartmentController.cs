@@ -1,4 +1,5 @@
-﻿using Attendance_Student.DTOs.DepartmentDTO;
+﻿using Attendance_Student.DTOs.ClassDTO;
+using Attendance_Student.DTOs.DepartmentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
@@ -15,95 +16,127 @@ namespace Attendance_Student.Controllers
     public class DepartmentController : ControllerBase
     {
         
-            //AttendanceStudentContext db;
-            //GenericRepository<Department> DepartmentRepo;
-            //GenericRepository<Subject> subjectRepo;
-            UnitWork unit;
+            UnitWork _unit;
 
-            UserManager<IdentityUser> userManager;
-            RoleManager<IdentityRole> roleManager;
             IMapper mapper;
-            public DepartmentController(UnitWork unit, IMapper mapper, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+            public DepartmentController(UnitWork unit, IMapper mapper)
             {
-                this.unit = unit;
+                _unit = unit;
                 this.mapper = mapper;
-                this.userManager = userManager;
-                this.roleManager = roleManager;
                
             }
-        [HttpGet]
-        [SwaggerOperation
-            (
-            Summary = "Retrieves all Departmentes",
-            Description = "Fetches a list of all Departmentes in the school"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the list of Departmentes", typeof(List<SelectDepartmentDTO>))]
-        [SwaggerResponse(404, "No Departmentes found")]
-        [Produces("application/json")]
+            [HttpGet]
+            [SwaggerOperation(Summary = "Retrieves all Departments", Description = "Fetches a list of all Departments in the school")]
+            [SwaggerResponse(200, "Successfully retrieved the list of Departments", typeof(List<SelectDepartmentDTO>))]
+            [SwaggerResponse(404, "No Departments found")]
+            [Produces("application/json")]
 
-        public IActionResult selectAllDepartmentes()
-        {
-            List<Department> Departmentes = unit.DepartmentRepo.selectAll();
-
-            if (Departmentes.Count < 0) return NotFound();
-            else
+            public async Task<IActionResult> SelectAllDepartments()
             {
+                List<Department> Departments = await _unit.DepartmentRepo.selectAll();
 
-                var DepartmentDTO = mapper.Map<List<SelectDepartmentDTO>>(Departmentes);
+                if (Departments.Count < 0) return NotFound();
+                else
+                {
+
+                    var DepartmentDTO = mapper.Map<List<SelectDepartmentDTO>>(Departments);
 
 
-                return Ok(DepartmentDTO);
+                    return Ok(DepartmentDTO);
+                }
             }
-        }
 
-        [HttpGet("{id}")]
-        [SwaggerOperation(
-         Summary = "Retrieves a Department by ID",
-         Description = "Fetches a single Department details based on its unique ID"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the Department", typeof(SelectDepartmentDTO))]
-        [SwaggerResponse(404, "Department not found")]
-        [Produces("application/json")]
+            [HttpGet("{id}")]
+            [SwaggerOperation(Summary = "Retrieves a Department by ID", Description = "Fetches a single Department details based on its unique ID")]
+            [SwaggerResponse(200, "Successfully retrieved the Department", typeof(SelectDepartmentDTO))]
+            [SwaggerResponse(404, "Department not found")]
+            [Produces("application/json")]
 
 
-        public IActionResult selectDepartmentById(int id)
-        {
-
-            Department _Department = unit.DepartmentRepo.selectById(id);
-
-
-            if (_Department == null) return NotFound();
-            else
+            public async Task<IActionResult> selectDepartmentById(int id)
             {
+                if (id <= 0)
+                    return BadRequest("The Department ID is invalid");
+                
+
+                Department _Department = await _unit.DepartmentRepo.selectById(id);
+
+
+                if (_Department == null) return NotFound("Department not found.");
+
                 var DepartmentDTO = mapper.Map<SelectDepartmentDTO>(_Department);
 
                 return Ok(DepartmentDTO);
-            }
+                
 
-        }
-        [HttpPost]
-        [SwaggerOperation(
-    Summary = "Creates a new Department",
-    Description = "Adds a new Department info to the system. Requires admin privileges.")] // didn't do the admins yet
-        [SwaggerResponse(201, "The Department was created")]
-        [SwaggerResponse(400, "The Department data is invalid")]
-        //[Produces("application/json")]
-        //[Consumes("application/json")]
-        public IActionResult addDepartment(AddDepartmentDTO _DepartmentDTO)
+            }
+            [HttpPost]
+            [SwaggerOperation(
+                Summary = "Creates a new Department",
+                Description = "Adds a new Department info to the system. Requires admin privileges.")] // didn't do the admins yet
+            [SwaggerResponse(201, "The Department was created")]
+            [SwaggerResponse(400, "The Department data is invalid")]
+
+            public async Task<IActionResult> addDepartment(AddDepartmentDTO _DepartmentDTO)
+                {
+
+                if (!ModelState.IsValid)
+                    return NotFound("Invalid data provided for the department.");
+ 
+
+                    Department newDepartment = mapper.Map<Department>(_DepartmentDTO);
+                    List<Teacher> teachers = new List<Teacher>();
+                    foreach (var teacherId in _DepartmentDTO.TeachersIDs)
+                    {
+                        var teacher = (Teacher)_unit.UserReps.GetUsersWithRole("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
+                        teachers.Add(teacher);
+
+                    }
+
+                    List<Subject> subjects = new List<Subject>();
+                    foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
+                    {
+                        var subject = await _unit.SubjectRepo.selectById(subjectId);
+
+                        subjects.Add(subject);
+
+                    }
+
+                    newDepartment.Teachers = teachers;
+                    newDepartment.Subjects = subjects;
+
+
+                    await _unit.DepartmentRepo.add(newDepartment);
+                    await _unit.Save();
+                    return CreatedAtAction("selectDepartmentById", new { id = newDepartment.Id }, _DepartmentDTO);
+
+                
+                }
+        [HttpPut]
+        [SwaggerOperation(Summary = "Edit an existing Department", Description = "Updates an existing Department with new details. Requires admin privileges.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Department updated successfully." , typeof(List<SelectDepartmentDTO>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid Department data.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Department not found.")]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> editDepartment(EditDepartmentDTO _DepartmentDTO)
         {
 
-            if (!ModelState.IsValid)
-            {
-                return NotFound();
-            }
-            else
-            {
+            if (!ModelState.IsValid) return BadRequest("The department data provided is invalid.");
+            
+            var _Department = await _unit.DepartmentRepo.selectById(_DepartmentDTO.Id);
+            if (_Department == null) return NotFound("Department not found.");
 
-                Department newDepartment = mapper.Map<Department>(_DepartmentDTO);
+            mapper.Map(_DepartmentDTO, _Department);
+
+            if (_DepartmentDTO.flagAddOrOverwrite)  // if true , clear all the students within the current Department
+            {
+                _Department.Subjects.Clear();
+                _Department.Teachers.Clear();
                 List<Teacher> teachers = new List<Teacher>();
                 foreach (var teacherId in _DepartmentDTO.TeachersIDs)
                 {
-                    var teacher = (Teacher)userManager.GetUsersInRoleAsync("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
+                    var teacher = (Teacher) _unit.UserReps.GetUsersWithRole("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
                     teachers.Add(teacher);
 
                 }
@@ -111,91 +144,42 @@ namespace Attendance_Student.Controllers
                 List<Subject> subjects = new List<Subject>();
                 foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
                 {
-                    var subject = unit.SubjectRepo.selectById(subjectId);
+                    var subject = await _unit.SubjectRepo.selectById(subjectId);
 
                     subjects.Add(subject);
 
                 }
+                _Department.Subjects = subjects;
+                _Department.Teachers = teachers;
 
-                newDepartment.Teachers = teachers;
-                newDepartment.Subjects = subjects;
-
-
-                unit.DepartmentRepo.add(newDepartment);
-                unit.DepartmentRepo.save();
-                return CreatedAtAction("selectDepartmentById", new { id = newDepartment.Id }, _DepartmentDTO);
 
             }
-        }
-        [HttpPut]
-        [SwaggerOperation(Summary = "Edit an existing Department", Description = "Updates an existing Department with new details. Requires admin privileges.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Department updated successfully.")]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid Department data.")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "Department not found.")]
-        [Produces("application/json")]
-        [Consumes("application/json")]
-        public IActionResult editDepartment(EditDepartmentDTO _DepartmentDTO)
-        {
-
-            if (ModelState.IsValid)
+            else
             {
-                var _Department = unit.DepartmentRepo.selectById(_DepartmentDTO.Id);
-                if (_Department == null) return NotFound();
-                else
+
+                foreach (var teacherId in _DepartmentDTO.TeachersIDs)
                 {
-                    mapper.Map(_DepartmentDTO, _Department);
+                    var teacher = (Teacher)_unit.UserReps.GetUsersWithRole("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
+                    _Department.Teachers.Add(teacher);
 
-                    if (_DepartmentDTO.flagAddOrOverwrite)  // if true , clear all the students within the current Department
-                    {
-                        _Department.Subjects.Clear();
-                        _Department.Teachers.Clear();
-                        List<Teacher> teachers = new List<Teacher>();
-                        foreach (var teacherId in _DepartmentDTO.TeachersIDs)
-                        {
-                            var teacher = (Teacher)userManager.GetUsersInRoleAsync("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
-                            teachers.Add(teacher);
-
-                        }
-
-                        List<Subject> subjects = new List<Subject>();
-                        foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
-                        {
-                            var subject = unit.SubjectRepo.selectById(subjectId);
-
-                            subjects.Add(subject);
-
-                        }
-                        _Department.Subjects = subjects;
-                        _Department.Teachers = teachers;
-
-
-                    }
-                    else
-                    {
-
-                        foreach (var teacherId in _DepartmentDTO.TeachersIDs)
-                        {
-                            var teacher = (Teacher)userManager.GetUsersInRoleAsync("Teacher").Result.FirstOrDefault(t => t.Id == teacherId);
-                            _Department.Teachers.Add(teacher);
-
-                        }
-
-
-                        foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
-                        {
-                            var subject = unit.SubjectRepo.selectById(subjectId);
-
-                            _Department.Subjects.Add(subject);
-
-                        }
-
-                    }
-                    unit.DepartmentRepo.update(_Department);
-                     unit.DepartmentRepo.save();
-                    return Ok();
                 }
+
+
+                foreach (var subjectId in _DepartmentDTO.SubjectsIDs)
+                {
+                    var subject = await _unit.SubjectRepo.selectById(subjectId);
+
+                    _Department.Subjects.Add(subject);
+
+                }
+
             }
-            else { return BadRequest(); }
+            _unit.DepartmentRepo.update(_Department);
+            await _unit.Save();
+            var departmentDTO = mapper.Map<SelectDepartmentDTO>(_Department);
+
+            return Ok(departmentDTO);
+                
 
 
         }
@@ -206,20 +190,15 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Department deleted successfully.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Department not found.")]
         [Produces("application/json")]
-        public IActionResult deleteDepartmentById(int id)
+        public async Task<IActionResult> deleteDepartmentById(int id)
         {
-            var _Department = unit.DepartmentRepo.selectById(id);
+            var _Department =await _unit.DepartmentRepo.selectById(id);
             if (_Department == null)
-            {
                 return NotFound();
-            }
-            else
-            {
-                unit.DepartmentRepo.remove(_Department);
-                  unit.DepartmentRepo.save();
-                return Ok();
-            }
 
+            _unit.DepartmentRepo.remove(_Department);
+            _unit.DepartmentRepo.save();
+            return Ok();
         }
     }
 }

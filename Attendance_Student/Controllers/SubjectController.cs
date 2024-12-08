@@ -13,13 +13,11 @@ namespace Attendance_Student.Controllers
     [ApiController]
     public class SubjectController : ControllerBase
     {
-        //AttendanceStudentContext db;
-        //GenericRepository<Subject> subjectRepo;
-        UnitWork unit;
+        UnitWork _unit;
         IMapper mapper;
         public SubjectController(UnitWork unit, IMapper mapper)
         {
-          this.unit = unit;
+          _unit = unit;
             this.mapper = mapper;
         }
         [HttpGet]
@@ -32,19 +30,16 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "No classes found")]
         [Produces("application/json")]
 
-        public IActionResult selectAllSubjectss()
+        public async Task<IActionResult> selectAllSubjects()
         {
-            //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            List<Subject> subjects = unit.SubjectRepo.selectAll();
+            List<Subject> subjects = await _unit.SubjectRepo.selectAll();
 
-            if (subjects.Count < 0) return NotFound();
-            else
-            {
+            if (subjects.Count < 0) return NotFound("No subjects were found in the system. Please check again later.");
 
-                var subjectDTO = mapper.Map<List<SelectSubjectDTO>>(subjects);
+            var subjectDTO = mapper.Map<List<SelectSubjectDTO>>(subjects);
 
-                return Ok(subjectDTO);
-            }
+            return Ok(subjectDTO);
+            
         }
 
         [HttpGet("{id:int}")]
@@ -56,75 +51,66 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Subject not found")]
         [Produces("application/json")]
 
-
-        public IActionResult selectSubjectById(int id)
+        public async Task<IActionResult> selectSubjectById(int id)
         {
 
-            Subject subject = unit.SubjectRepo.selectById(id);
+            Subject subject = await _unit.SubjectRepo.selectById(id);
 
-
-            if (subject == null) return NotFound();
-            else
-            {
-                var subjectDTO = mapper.Map<SelectSubjectDTO>(subject);
-
-              
-                return Ok(subjectDTO);
-            }
+            if (subject == null) return NotFound("No subjects were found in the system. Please check again later.");
+  
+            var subjectDTO = mapper.Map<SelectSubjectDTO>(subject);
+ 
+            return Ok(subjectDTO);            
 
         }
         [HttpPost]
         [SwaggerOperation(
-    Summary = "Creates a new Subject",
-    Description = "Adds a new Subject info to the system. Requires admin privileges.")] // didn't do the admins yet
+            Summary = "Creates a new Subject",
+            Description = "Adds a new Subject info to the system. Requires admin privileges.")] // didn't do the admins yet
         [SwaggerResponse(201, "The Subject was created", typeof(SelectSubjectDTO))]
         [SwaggerResponse(400, "The Subject data is invalid")]
         //[Produces("application/json")]
         //[Consumes("application/json")]
-        public IActionResult addSubject([FromForm] AddSubjectDTO subjectDTO)
+        public async Task<IActionResult> addSubject([FromForm] AddSubjectDTO subjectDTO)
         {
 
             if (!ModelState.IsValid)
-            {
-                return NotFound();
-            }
-            else
-            {
+                return BadRequest(ModelState);
+            
+            Subject newSubject = mapper.Map<Subject>(subjectDTO);
 
-                Subject newSubject = mapper.Map<Subject>(subjectDTO);
+            await _unit.SubjectRepo.add(newSubject);
+            await _unit.Save();
+            return CreatedAtAction("selectSubjectById", new { id = newSubject.subject_Id }, subjectDTO);
 
 
-
-                unit.SubjectRepo.add(newSubject);
-                unit.SubjectRepo.save();
-                return CreatedAtAction("selectSubjectById", new { id = newSubject.subject_Id }, subjectDTO);
                
 
-            }
+            
         }
         [HttpPut]
         [SwaggerOperation(Summary = "Edit an existing Subject", Description = "Updates an existing Subject with new details. Requires admin privileges.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Subject updated successfully.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Subject updated successfully." , typeof(SelectSubjectDTO))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid Subject data.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Subject not found.")]
         //[Produces("application/json")]
         //[Consumes("application/json")]
-        public IActionResult editSubject(EditSubjectDTO subjectDTO)
+        public async Task<IActionResult> editSubjectAsync(EditSubjectDTO subjectDTO)
         {
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            var subject = await _unit.SubjectRepo.selectById(subjectDTO.subject_Id);
+            if (subject == null) return NotFound("No subjects were found in the system. Please check again later.");
+            else
             {
-                var subjcet = unit.SubjectRepo.selectById(subjectDTO.subject_Id);
-                if (subjcet == null) return NotFound();
-                else
-                {
-                    mapper.Map(subjectDTO, subjcet);
-                    unit.SubjectRepo.update(subjcet);
-                    unit.SubjectRepo.save();
-                    return Ok();
-                }
+                mapper.Map(subjectDTO, subject);
+                _unit.SubjectRepo.update(subject);
+                _unit.SubjectRepo.save();
+                var subjectShow = mapper.Map<SelectSubjectDTO>(subject);
+                return Ok(subjectShow);
             }
-            else { return BadRequest(); }
+   
 
 
         }
@@ -135,19 +121,16 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Subject deleted successfully.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Subject not found.")]
         [Produces("application/json")]
-        public IActionResult deleteSubjectById(int id)
+        public async Task<IActionResult> deleteSubjectById(int id)
         {
-            var subjcet = unit.SubjectRepo.selectById(id);
-            if (subjcet == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                unit.SubjectRepo.remove(subjcet);
-                unit.SubjectRepo.save();
-                return Ok();
-            }
+            var subject = await _unit.SubjectRepo.selectById(id);
+            if (subject == null)
+                return NotFound("No subjects were found in the system. Please check again later.");
+  
+            _unit.SubjectRepo.remove(subject);
+            await _unit.Save();
+            return Ok();
+            
 
         }
     }

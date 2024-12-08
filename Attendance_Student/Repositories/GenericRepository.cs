@@ -1,50 +1,55 @@
 ﻿using Attendance_Student.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Attendance_Student.Repositories
 {
     public class GenericRepository<genericEntity> where genericEntity : class
     {
-        protected AttendanceStudentContext db;
+        AttendanceStudentContext _context;
 
-        public GenericRepository(AttendanceStudentContext db)
+        public GenericRepository(AttendanceStudentContext context)
         {
-                this.db = db;
+                _context = context; 
         }
 
-        public virtual List<genericEntity> selectAll()
+        public async Task<List<genericEntity>> selectAll()
         {
-            return db.Set<genericEntity>().ToList();
+            return await _context.Set<genericEntity>().ToListAsync();
         }
 
-        public virtual genericEntity selectById(int id)
+        public async Task<genericEntity> selectById(int id)
         {
-            return db.Set<genericEntity>().Find(id);
+            return await _context.Set<genericEntity>().FindAsync(id);
+        }
+        public async Task<genericEntity> selectUserById(string id)
+        {
+            return await _context.Set<genericEntity>().FindAsync(id);
         }
 
-        public virtual void add(genericEntity entity)
+        public async Task add(genericEntity entity)
         {
-            db.Set<genericEntity>().Add(entity);
+           await _context.Set<genericEntity>().AddAsync(entity);
             
         }
 
-        public virtual void update(genericEntity entity)
+        public void update(genericEntity entity)
         {
 
-            db.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+             _context.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
              
         }
-        public virtual void remove(genericEntity obj)
+        public void remove(genericEntity obj)
         {
 
             //var obj = db.Set<genericEntity>().Find(id);
-            db.Set<genericEntity>().Remove(obj);
+            _context.Set<genericEntity>().Remove(obj);
 
         }
 
         public virtual void save()
         {
 
-            db.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }
