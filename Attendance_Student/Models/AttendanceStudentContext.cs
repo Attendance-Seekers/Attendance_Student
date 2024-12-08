@@ -10,6 +10,10 @@ namespace Attendance_Student.Models
         {
                 
         }
+        public AttendanceStudentContext()
+        {
+            
+        }
 
         public virtual DbSet<Student> Students { get; set; }
         public virtual DbSet<Class> Classes { get; set; }

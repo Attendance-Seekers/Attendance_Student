@@ -33,6 +33,18 @@ namespace Attendance_Student.UnitOfWorks
             _signInManager = signInManager;
             _roleManager = roleManager;     
         }
+        public AttendanceStudentContext Context
+        {
+            get
+            {
+                if (_context == null)
+                {
+
+                    _context = new AttendanceStudentContext();
+                }
+                return _context;
+            }
+        }
         public GenericRepository<Admin> AdminReop
         {
             get
