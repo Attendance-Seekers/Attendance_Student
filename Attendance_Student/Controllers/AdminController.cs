@@ -46,11 +46,21 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(404, "Admin not found")]
         public async Task<IActionResult> GetAdminById(string id)
         {
-            Admin admin =(Admin) await _unit.UserReps.GetUserById(id);
-            if (admin == null || !(await _unit.UserReps.checkUserRole(admin , "Admin")))
-                return NotFound($"Admin with ID '{id}' not found.");
+            // Retrieve the user
+            var user = await _unit.UserReps.GetUserById(id);
 
-            var adminDTO = _mapper.Map<AdminDTO>(admin);
+            // Check if user exists and is an admin
+            if (user == null)
+                return NotFound($"User with ID '{id}' not found.");
+
+            // Additional role validation
+            bool isAdmin = await _unit.UserReps.checkUserRole(user, "Admin");
+            if (!isAdmin)
+                return Forbid(); // or return Unauthorized() depending on your requirements
+
+            // Map to DTO using AutoMapper
+            var adminDTO = _mapper.Map<AdminDTO>(user);
+
             return Ok(adminDTO);
         }
 

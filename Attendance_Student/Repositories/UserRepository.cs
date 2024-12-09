@@ -82,5 +82,6 @@ namespace Attendance_Student.Repositories
         {
             return await _userManager.Users.ToListAsync();
         }
+
     }
 }

@@ -28,15 +28,19 @@ namespace Attendance_Student.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Retrieves all Parents", Description = "Fetches a list of all Parents in the system.")]
+        [SwaggerOperation(
+      Summary = "Retrieves all Parents",
+      Description = "Fetches a list of all Parents in the school"
+  )]
         [SwaggerResponse(200, "Successfully retrieved the list of Parents", typeof(List<ParentResponseDto>))]
         [SwaggerResponse(404, "No parents found")]
-        public async Task<IActionResult> GetAllParents()
+        [Produces("application/json")]
+        public IActionResult GetAllParents()
         {
-            var parents = await _unit.UserReps.GetUsers();
+            var parents = _unit.UserReps.GetUsersWithRole("Parent").Result.OfType<Parent>().ToList();
 
             if (!parents.Any())
-                return NotFound();
+                return NotFound("There are no Parents");
 
             var parentDTOs = _mapper.Map<List<ParentResponseDto>>(parents);
             return Ok(parentDTOs);

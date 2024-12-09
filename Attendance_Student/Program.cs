@@ -17,6 +17,19 @@ namespace Attendance_Student
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Verify required settings
+            var connectionString = builder.Configuration.GetConnectionString("AttendanceConn");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException(nameof(connectionString), "Connection string is missing or invalid.");
+            }
+
+            var secretKey = builder.Configuration["Jwt:SecretKey"];
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new ArgumentNullException(nameof(secretKey), "JWT SecretKey is missing or invalid.");
+            }
+
             // Add services to the container
             builder.Services.AddControllers();
 
@@ -72,13 +85,10 @@ namespace Attendance_Student
 
             // Configure database context with SQL Server
             builder.Services.AddDbContext<AttendanceStudentContext>(op =>
-                op.UseLazyLoadingProxies().UseSqlServer(
-                    builder.Configuration.GetConnectionString("AttendanceConn")
-                )
+                op.UseLazyLoadingProxies().UseSqlServer(connectionString)
             );
 
             // Configure Identity
-            // Configure Identity for multiple user types
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -107,7 +117,7 @@ namespace Attendance_Student
             .AddUserManager<UserManager<Parent>>();
 
             // Configure JWT Authentication
-            var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"]);
+            var key = Encoding.ASCII.GetBytes(secretKey);
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -135,12 +145,10 @@ namespace Attendance_Student
                 options.AddPolicy("ParentPolicy", policy => policy.RequireRole("Parent"));
             });
 
-
-            // Enable CORS
-            // Repositories
+            // Repositories and UnitOfWork
             builder.Services.AddScoped<UnitWork>();
 
-            // enable Cross-Origin Requests CORS
+            // Enable CORS
             var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             builder.Services.AddCors(options =>
             {
@@ -159,10 +167,17 @@ namespace Attendance_Student
             var app = builder.Build();
 
             // Seed default roles during application startup
-            using (var scope = app.Services.CreateScope())
+            try
             {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                await RoleSeeder.SeedRolesAsync(roleManager);
+                using (var scope = app.Services.CreateScope())
+                {
+                    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    await RoleSeeder.SeedRolesAsync(roleManager);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while seeding roles: {ex.Message}");
             }
 
             // Configure the HTTP request pipeline
@@ -185,7 +200,15 @@ namespace Attendance_Student
             app.MapControllers();
 
             // Run the application
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while starting the application: {ex.Message}");
+                throw;
+            }
         }
     }
 }

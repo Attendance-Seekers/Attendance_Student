@@ -68,10 +68,18 @@ namespace Attendance_Student.MapperConfig
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+            CreateMap<IdentityUser, Admin>()
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
             // Parent mappers
             CreateMap<ParentCreateDto, Parent>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+            CreateMap<IdentityUser, ParentResponseDto>()
+    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
             // Department mappers
             CreateMap<Department, SelectDepartmentDTO>().ReverseMap();
