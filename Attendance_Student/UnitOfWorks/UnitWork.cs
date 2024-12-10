@@ -45,7 +45,7 @@ namespace Attendance_Student.UnitOfWorks
                 return _context;
             }
         }
-        public GenericRepository<Admin> AdminReop
+        public GenericRepository<Admin> AdminRepo
         {
             get
             {

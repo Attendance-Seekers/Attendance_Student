@@ -3,6 +3,7 @@ using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -11,6 +12,7 @@ namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class SubjectController : ControllerBase
     {
         UnitWork _unit;
@@ -41,7 +43,7 @@ namespace Attendance_Student.Controllers
             return Ok(subjectDTO);
             
         }
-
+        [Authorize(Roles = "Admin , Teacher")]
         [HttpGet("{id:int}")]
         [SwaggerOperation(
          Summary = "Retrieves a Subject by ID",

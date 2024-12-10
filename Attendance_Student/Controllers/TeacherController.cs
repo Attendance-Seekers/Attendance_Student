@@ -3,6 +3,7 @@ using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class TeacherController : ControllerBase
     {
         //AttendanceStudentContext db;
@@ -49,7 +51,7 @@ namespace Attendance_Student.Controllers
                 return Ok(teacherDTO);
             }
         }
-
+        [Authorize (Roles ="Teacher")]
         [HttpGet("{id}")]
         [SwaggerOperation(
          Summary = "Retrieves a Teacher by ID",

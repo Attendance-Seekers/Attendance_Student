@@ -2,6 +2,7 @@
 using Attendance_Student.Models;
 using Attendance_Student.UnitOfWorks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class StudentController : ControllerBase
     {
         IMapper mapper;
@@ -20,6 +22,7 @@ namespace Attendance_Student.Controllers
             _unit = unit;
             this.mapper = mapper;
         }
+        
         [HttpGet]
         [SwaggerOperation
             (
@@ -41,7 +44,7 @@ namespace Attendance_Student.Controllers
             return Ok(StudentDTO);
             
         }
-
+        [Authorize(Roles ="Student")]
         [HttpGet("{id}")]
         [SwaggerOperation(
          Summary = "Retrieves a Student by ID",

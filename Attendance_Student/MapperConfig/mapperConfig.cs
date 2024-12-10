@@ -55,7 +55,12 @@ namespace Attendance_Student.MapperConfig
             CreateMap<EditTeacherDTO, Teacher>().ReverseMap();
 
             // Student mappers
-            CreateMap<Student, SelectStudentDTO>().ReverseMap();
+            CreateMap<Student, SelectStudentDTO>().AfterMap((src , dest)=>
+            {
+                dest.class_name = src._class?.Class_Name?? "UnKnown";
+                dest.parent_name = src.parent?.fullname ?? "Unknown";
+                
+            }).ReverseMap();
             CreateMap<AddStudentDTO, Student>().ReverseMap();
             CreateMap<EditStudentDTO, Student>().ReverseMap();
 

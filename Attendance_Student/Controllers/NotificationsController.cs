@@ -3,6 +3,7 @@ using Attendance_Student.DTOs.ParentDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.UnitOfWorks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace Attendance_Student.Controllers
         {
             _unit = unit;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("send")]
         [SwaggerOperation(Summary = "Send notifications to parents", Description = "Sends notifications to parents regarding their students' attendance status.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Notifications sent successfully.", Type = typeof(List<SelectNotificationDTO>))]
@@ -53,7 +55,7 @@ namespace Attendance_Student.Controllers
             {
                 Parent parent = await _unit.ParentRepo.selectUserById(group.Key);
                 if (parent == null) return BadRequest("Parent not found.");
-                var admin = await _unit.AdminReop.selectUserById(sendNotification.admin_id);
+                var admin = await _unit.AdminRepo.selectUserById(sendNotification.admin_id);
                 if (admin == null) return BadRequest("Admin not found.");
                 Notification notification = new Notification()
                 {
@@ -71,19 +73,20 @@ namespace Attendance_Student.Controllers
             List<SelectNotificationDTO> selectNotifications = new List<SelectNotificationDTO>();
             foreach(var notification in notifications)
             {
-                List<SelectStudentDTO>  studentDTOs = new List<SelectStudentDTO>();
+                List<SudentNotificationDTO>  studentDTOs = new List<SudentNotificationDTO>();
                 SelectParentDTO selectParentDTO = new SelectParentDTO()
                 {
-                    Id = notification.Parent_Id,
                     Name = notification.Parent.fullname,
                     address = notification.Parent.address,
                 };
                 foreach(var showStudent in sts)
                 {
-                    SelectStudentDTO selectStudentDTO = new SelectStudentDTO()
+                    SudentNotificationDTO selectStudentDTO = new SudentNotificationDTO()
                     {
                         username = showStudent.Student_fullname,
-                        status = "Absent"
+                        status = "Absent", 
+                        class_name = showStudent._class?.Class_Name?? "UnKnown",
+                        age = showStudent.age
                     };
                     studentDTOs.Add(selectStudentDTO);
                 }
@@ -101,7 +104,7 @@ namespace Attendance_Student.Controllers
             }
             return Ok(selectNotifications);
         }
-
+        [Authorize(Roles = "Parent")]
         [HttpGet]
         [SwaggerOperation(Summary = "Receive notifications for a parent", Description = "Retrieves notifications for a specific parent and includes the attendance status of their children.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Notifications received successfully.", Type = typeof(List<SelectNotificationDTO>))]
@@ -109,6 +112,8 @@ namespace Attendance_Student.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> ReceiveNotifications(string parent_id)
             {
+                Parent parent = await _unit.ParentRepo.selectUserById(parent_id);
+                if (parent == null) return BadRequest($"No Parent found with the id: {parent_id}.");
                 List<Notification> notifications = await _unit.NotificationFuncRepository.GetNotificationOfParent(parent_id);
                 if (!notifications.Any()) return BadRequest("No notifications found.");
 
@@ -118,29 +123,39 @@ namespace Attendance_Student.Controllers
                 List<SelectNotificationDTO> selectNotifications = new List<SelectNotificationDTO>();
                 foreach (var notification in notifications)
                 {
-                    List<SelectStudentDTO> studentDTOs = new List<SelectStudentDTO>();
+                    List<SudentNotificationDTO> studentDTOs = new List<SudentNotificationDTO>();
 
                     foreach (var showStudent in students)
                     {
                         var attendance = showStudent.viewAttendances.FirstOrDefault(a => a.attendance.dateAttendance == notification.sendDate);
                         if(attendance == null || attendance.Status != "Present")
                         {
-                            SelectStudentDTO selectStudentDTO = new SelectStudentDTO()
+                            SudentNotificationDTO selectStudentDTO = new SudentNotificationDTO()
                             {
                                 username = showStudent.Student_fullname,
-                                status = "Absent"
+                                status = "Absent",
+                                age = showStudent.age,
+                                class_name = showStudent._class?.Class_Name?? "UnKnown"
                             };
                             studentDTOs.Add(selectStudentDTO);
                             
                         }
                     }
+                    SelectParentDTO parentDTO = new SelectParentDTO()
+                    {
+                        Name = parent.fullname,
+                        address = parent.address,
+                    };
                     SelectNotificationDTO selectNotificationDTO = new SelectNotificationDTO()
                     {
                         Id = notification.Id,
                         Message = notification.Message,
                         Type = notification.Type,
                         sendDate = notification.sendDate,
-                        Students = studentDTOs
+                        Students = studentDTOs,
+                        admin_name = notification.admin.UserName,
+                        Parent = parentDTO,
+        
                     };
                     selectNotifications.Add(selectNotificationDTO);
                 }
