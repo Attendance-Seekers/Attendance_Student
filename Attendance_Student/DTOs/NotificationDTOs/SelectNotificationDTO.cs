@@ -17,9 +17,5 @@ namespace Attendance_Student.DTOs.NotificationDTOs
         public string admin_name { get; set; }
         public virtual List<SudentNotificationDTO> Students { get; set; }
 
-        public static implicit operator SelectNotificationDTO(SelectNotificationDTO v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

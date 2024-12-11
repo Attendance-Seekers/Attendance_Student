@@ -74,17 +74,17 @@ namespace Attendance_Student.MapperConfig
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
             CreateMap<IdentityUser, Admin>()
-    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
             // Parent mappers
             CreateMap<ParentCreateDto, Parent>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
             CreateMap<IdentityUser, ParentResponseDto>()
-    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-    .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
             // Department mappers
             CreateMap<Department, SelectDepartmentDTO>().ReverseMap();
@@ -130,9 +130,21 @@ namespace Attendance_Student.MapperConfig
                 .ForMember(dest => dest.StudentsAttendance, opt => opt.MapFrom(src => src.StudentsAttendance));
 
             // Mapping from StudentAttendanceDTO to StudentAttendance
-            CreateMap<StudentAttendanceDTO, StudentAttendance>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status))
-                .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.StudentId));
+            CreateMap<Attendance, SelectAttendanceDTO>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
+             .ForMember(dest => dest.dateAttendance, opt => opt.MapFrom(src => src.dateAttendance))
+             .ForMember(dest => dest.teacher_name, opt => opt.MapFrom(src => src.teacher.Teacher_fullName)) // ربط مع اسم المدرس
+             .ForMember(dest => dest.subject_name, opt => opt.MapFrom(src => src.teacher.Subject.subject_Name)) // ربط مع المادة
+             .ForMember(dest => dest.StudentsAttendance, opt => opt.MapFrom(src => src.StudentsAttendance)); // ربط مع قائمة الطلاب
+
+            CreateMap<StudentAttendance, SelectStudentDTO>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.StudentId))
+                .ForMember(dest => dest.username, opt => opt.MapFrom(src => src.student.UserName))
+                .ForMember(dest => dest.status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.class_name, opt => opt.MapFrom(src => src.student._class.Class_Name)) // الحقول الخاصة بالطالب
+                .ForMember(dest => dest.age, opt => opt.MapFrom(src => src.student.age))
+                .ForMember(dest => dest.parent_name, opt => opt.MapFrom(src => src.student.parent.fullname));
 
             // Mapping from AttendanceDTO to Attendance
             CreateMap<AttendanceDTO, Attendance>()

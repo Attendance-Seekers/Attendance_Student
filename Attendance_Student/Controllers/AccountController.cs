@@ -67,17 +67,17 @@ namespace Attendance_Student.Controllers
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Invalid username or password.")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var result = await _unit.UserReps.UserSignIn(loginDto);
+            var currentUser = await _unit.UserReps.GetUserByName(loginDto.Username);
+            var result = await _unit.UserReps.UserSignIn(currentUser, loginDto);
 
             if (result.Succeeded)
             {
-                var user = await _unit.UserReps.GetUserByName(loginDto.Username);
-                var roles = await _unit.UserReps.GetRoles(user);
+                var roles = await _unit.UserReps.GetRoles(currentUser);
 
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.NameIdentifier, currentUser.Id),
+                    new Claim(ClaimTypes.Name, currentUser.UserName)
                 };
 
                 foreach (var role in roles)
@@ -97,7 +97,7 @@ namespace Attendance_Student.Controllers
                 return Ok(new
                 {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
-                    Username = user.UserName,
+                    Username = currentUser.UserName,
                     Roles = roles
                 });
             }

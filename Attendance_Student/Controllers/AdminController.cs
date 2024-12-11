@@ -14,7 +14,7 @@ namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles ="Admin")]
+   // [Authorize(Roles ="Admin")]
     public class AdminController : ControllerBase
     {
         private readonly UnitWork _unit;
@@ -28,35 +28,18 @@ namespace Attendance_Student.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Retrieves Admins with Pagination", Description = "Fetches paginated list of Admins")]
-        [SwaggerResponse(200, "Successfully retrieved paginated Admins")]
-        public async Task<IActionResult> GetAllAdmins(
-         [FromQuery] int page = 1,
-         [FromQuery] int pageSize = 10)
+        [SwaggerOperation(Summary = "Retrieves all Admins", Description = "Fetches a list of all Admins in the system.")]
+        [SwaggerResponse(200, "Successfully retrieved the list of Admins", typeof(List<AdminDTO>))]
+        [SwaggerResponse(404, "No admins found")]
+        public async Task<IActionResult> GetAllAdmins()
         {
             var admins = await _unit.UserReps.GetUsersWithRole("Admin");
 
             if (!admins.Any())
                 return NotFound("No admins found in the system.");
 
-            var totalCount = admins.Count();
-            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-
-            var paginatedAdmins = admins
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var adminDTOs = _mapper.Map<List<AdminDTO>>(paginatedAdmins);
-
-            return Ok(new
-            {
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                CurrentPage = page,
-                PageSize = pageSize,
-                Admins = adminDTOs
-            });
+            var adminDTOs = _mapper.Map<List<AdminDTO>>(admins);
+            return Ok(adminDTOs);
         }
 
         [HttpGet("{id}")]

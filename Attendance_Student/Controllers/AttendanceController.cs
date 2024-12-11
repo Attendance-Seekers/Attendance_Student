@@ -1,4 +1,4 @@
-using Attendance_Student.DTOs.AttendanceDTOs;
+﻿using Attendance_Student.DTOs.AttendanceDTOs;
 using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.UnitOfWorks;
@@ -212,6 +212,38 @@ namespace Attendance_Student.Controllers
 
             return Ok(attendanceDTOs);
         }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("attendance/summary")]
+        [SwaggerOperation(Summary = "Get summary of student attendance", Description = "Retrieves a summary of student attendance, including the number of partial absences (when a student missed some classes on a specific day) and overall absences (when a student missed all classes on a specific day).")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Attendance summary retrieved successfully.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
+        public async Task<IActionResult> GetStudentsAbsenceCount()
+        {
+
+            var attendances = await _unit.Context.StudentAttendances.ToListAsync();
+            if (!attendances.Any())
+                return NotFound("No attendance records found");
+            var studentAbsentData = attendances
+                .GroupBy(s => s.StudentId)
+                .Select(group => new
+                {
+                    StudentId = group.Key,
+                    StudentName = group.First().student.Student_fullname,
+                    StudentAge = group.First().student.age,
+                    StudentParent = group.First().student.parent?.fullname?? "",
+                    StudentClass = group.First().student._class?.Class_Name?? "",
+                    PartialAbsenceCountForDay = group.
+                        GroupBy(a => a.attendance.dateAttendance)
+                        .Count(p => p.Any(a => a.Status == "absent" && p.Count(pp => pp.Status == "present") > 0)),
+                    AbsenceCountOverall = group
+                        .GroupBy(a => a.attendance.dateAttendance)  // جمع حسب التاريخ
+                        .Count(dayGroup => dayGroup.All(a => a.Status == "absent"))
+
+                }).ToList();
+
+            return Ok(studentAbsentData);
+        }
+
 
 
 
@@ -260,16 +292,11 @@ namespace Attendance_Student.Controllers
 
         }
 
-
-        //[HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
-        //[SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
-        //[SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
-        //[SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
         [Authorize (Roles = "Admin")]
-        //[HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
-        //[SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
-        //[SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
-        //[SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
+        [HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
+        [SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
         //public async Task<IActionResult> GetAttendanceClassReport(int class_id, DateOnly start_date, DateOnly end_date)
         //{
         //    Class _class = await _unit.ClassRepo.selectById(class_id);
@@ -305,48 +332,18 @@ namespace Attendance_Student.Controllers
         //    return Ok(attendanceDTOs);
         //}
 
-        [HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
-        [SwaggerOperation(Summary = "Get paginated attendance report for a class", Description = "Retrieves paginated attendance report within a date range")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found")]
-        public async Task<IActionResult> GetAttendanceClassReport(
-    int class_id,
-    DateOnly start_date,
-    DateOnly end_date,
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAttendanceClassReport(int class_id, DateOnly start_date, DateOnly end_date)
         {
             Class _class = await _unit.Context.Classes.FindAsync(class_id);
 
             if (_class == null) return BadRequest($"Class with ID {class_id} not found.");
+            List<Attendance> attendances = await _unit.Context.Attendances.Where(a => a.dateAttendance >= start_date && a.dateAttendance <= end_date && a.timeTable.class_id == class_id).ToListAsync();
+            if (!attendances.Any()) return NotFound("No attendance records found for the specified day.");
 
-            var attendancesQuery = _unit.Context.Attendances
-                .Where(a => a.dateAttendance >= start_date &&
-                            a.dateAttendance <= end_date &&
-                            a.timeTable.class_id == class_id);
+            List<SelectAttendanceDTO> attendanceDTOs = _mapper.Map<List<SelectAttendanceDTO>>(attendances);
 
-            var totalCount = await attendancesQuery.CountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            var attendances = await attendancesQuery
-                .OrderBy(a => a.dateAttendance)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            if (!attendances.Any())
-                return NotFound("No attendance records found for the specified day.");
-
-            var attendanceDTOs = _mapper.Map<List<SelectAttendanceDTO>>(attendances);
-
-            return Ok(new
-            {
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                CurrentPage = page,
-                PageSize = pageSize,
-                Attendances = attendanceDTOs
-            });
+            return Ok(attendanceDTOs);
         }
 
         [Authorize ( Roles = "Student , Admin , Parent")]
@@ -396,5 +393,7 @@ namespace Attendance_Student.Controllers
 
 
         }
+
+
     }
 }

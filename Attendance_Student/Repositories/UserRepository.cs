@@ -41,13 +41,12 @@ namespace Attendance_Student.Repositories
         {
             return await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
         }
-        public async Task<SignInResult> UserSignIn(LoginDTO loginDto)
+        public async Task<SignInResult> UserSignIn(IdentityUser user , LoginDTO loginDto)
         {
-            return await _signInManager.PasswordSignInAsync(
-                loginDto.Username,
+            return await _signInManager.CheckPasswordSignInAsync(
+                user,
                 loginDto.Password,
-                isPersistent: false,
-                lockoutOnFailure: false
+                lockoutOnFailure:false
             );
         }
         public async Task Logout()

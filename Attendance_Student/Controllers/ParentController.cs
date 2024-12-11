@@ -9,7 +9,6 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Attendance_Student.UnitOfWorks;
-using Attendance_Student.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Attendance_Student.Controllers
@@ -32,42 +31,21 @@ namespace Attendance_Student.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-            Summary = "Retrieves all Parents with pagination",
-            Description = "Fetches a paginated list of all Parents in the school"
-        )]
-        [SwaggerResponse(200, "Successfully retrieved the paginated list of Parents", typeof(PaginatedResponse<ParentResponseDto>))]
+      Summary = "Retrieves all Parents",
+      Description = "Fetches a list of all Parents in the school"
+  )]
+        [SwaggerResponse(200, "Successfully retrieved the list of Parents", typeof(List<ParentResponseDto>))]
         [SwaggerResponse(404, "No parents found")]
         [Produces("application/json")]
-        public IActionResult GetAllParents([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public IActionResult GetAllParents()
         {
-            
             var parents = _unit.UserReps.GetUsersWithRole("Parent").Result.OfType<Parent>().ToList();
 
             if (!parents.Any())
                 return NotFound("There are no Parents");
 
-           
-            int totalCount = parents.Count;
-            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-
-            var paginatedParents = parents
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-          
-            var parentDTOs = _mapper.Map<List<ParentResponseDto>>(paginatedParents);
-
-            var response = new PaginatedResponse<ParentResponseDto>
-            {
-                TotalCount = totalCount,
-                TotalPages = totalPages,
-                CurrentPage = page,
-                PageSize = pageSize,
-                Data = parentDTOs
-            };
-
-            return Ok(response);
+            var parentDTOs = _mapper.Map<List<ParentResponseDto>>(parents);
+            return Ok(parentDTOs);
         }
 
         [Authorize(Roles ="Parent")]
