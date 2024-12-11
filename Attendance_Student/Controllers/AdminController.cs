@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using Attendance_Student.UnitOfWorks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class AdminController : ControllerBase
     {
         private readonly UnitWork _unit;

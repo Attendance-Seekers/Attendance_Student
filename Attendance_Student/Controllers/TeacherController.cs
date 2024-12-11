@@ -1,4 +1,5 @@
-﻿using Attendance_Student.DTOs.TeacherDTO;
+﻿using Attendance_Student.DTOs;
+using Attendance_Student.DTOs.TeacherDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
@@ -26,29 +27,46 @@ namespace Attendance_Student.Controllers
         }
         [HttpGet]
         [SwaggerOperation
-            (
-            Summary = "Retrieves all Teachers",
-            Description = "Fetches a list of all Teachers in the school"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the list of Teachers", typeof(List<SelectTeacherDTO>))]
-        [SwaggerResponse(404, "No classes found")]
+ (
+     Summary = "Retrieves all Teachers with pagination",
+     Description = "Fetches a paginated list of all Teachers in the school"
+ )]
+        [SwaggerResponse(200, "Successfully retrieved the paginated list of Teachers", typeof(PaginatedResponse<SelectTeacherDTO>))]
+        [SwaggerResponse(404, "No Teachers found")]
         [Produces("application/json")]
-
-        public IActionResult selectAllTeachers()
+        public IActionResult SelectAllTeachers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            //Console.WriteLine("selectALLLLLLLLLLLLLLLLLLLLLL");
-            //List<Teacher> Teachers = teacherRepo.selectAll();
+          
             var teachers = _unit.UserReps.GetUsersWithRole("Teacher").Result.OfType<Teacher>().ToList();
 
-            if (!teachers.Any()) return NotFound();
-            else
+            if (!teachers.Any())
+                return NotFound("No teachers found in the system.");
+
+           
+            int totalCount = teachers.Count;
+            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var paginatedTeachers = teachers
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+           
+            var teacherDTOs = mapper.Map<List<SelectTeacherDTO>>(paginatedTeachers);
+
+            
+            var response = new PaginatedResponse<SelectTeacherDTO>
             {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Data = teacherDTOs
+            };
 
-                var teacherDTO = mapper.Map<List<SelectTeacherDTO>>(teachers);
-
-                return Ok(teacherDTO);
-            }
+            return Ok(response);
         }
+
 
         [HttpGet("{id}")]
         [SwaggerOperation(

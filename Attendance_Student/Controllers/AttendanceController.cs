@@ -3,6 +3,7 @@ using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.UnitOfWorks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace Attendance_Student.Controllers
             _userManager = userManager;
             _mapper = mapper;
         }
+        [Authorize(Roles ="Teacher")]
         [HttpPost("class/{class_id}")]
         [SwaggerOperation(Summary = "Record attendance for a class", Description = "Records attendance for a specific class.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Attendance recorded successfully.")]
@@ -158,6 +160,7 @@ namespace Attendance_Student.Controllers
             return Ok(selectAttendance);
         }
 
+        [Authorize (Roles = "Admin , Teacher")]
         [HttpGet("class/{class_id}/date/{date}")]
         [SwaggerOperation(Summary = "Get attendance for a class on a specific date", Description = "Retrieves attendance records for a specific class on a given date.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Attendance records retrieved successfully.")]
@@ -213,7 +216,7 @@ namespace Attendance_Student.Controllers
 
 
 
-
+        [Authorize (Roles = "Student , Parent")]
         [HttpGet("/student/{student_id}")]
         [SwaggerOperation(Summary = "Get attendance for a student", Description = "Retrieves attendance records for a specific student.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Attendance records retrieved successfully.")]
@@ -258,6 +261,11 @@ namespace Attendance_Student.Controllers
         }
 
 
+        //[HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
+        //[SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
+        //[SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
+        //[SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
+        [Authorize (Roles = "Admin")]
         //[HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
         //[SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
         //[SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
@@ -341,7 +349,7 @@ namespace Attendance_Student.Controllers
             });
         }
 
-
+        [Authorize ( Roles = "Student , Admin , Parent")]
         [HttpGet("report/student/{student_id}/range/{start_date}/{end_date}")]
         [SwaggerOperation(Summary = "Get attendance report for a student",
                   Description = "Retrieves attendance report for a specific student within a specified date range.")]

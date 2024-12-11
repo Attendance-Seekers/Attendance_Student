@@ -1,4 +1,5 @@
-﻿using Attendance_Student.DTOs.StudentDTO;
+﻿using Attendance_Student.DTOs;
+using Attendance_Student.DTOs.StudentDTO;
 using Attendance_Student.Models;
 using Attendance_Student.UnitOfWorks;
 using AutoMapper;
@@ -22,25 +23,46 @@ namespace Attendance_Student.Controllers
         }
         [HttpGet]
         [SwaggerOperation
-            (
-            Summary = "Retrieves all Students",
-            Description = "Fetches a list of all Students in the school"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the list of Students", typeof(List<SelectStudentDTO>))]
-        [SwaggerResponse(404, "No classes found")]
+ (
+     Summary = "Retrieves all Students with pagination",
+     Description = "Fetches a paginated list of all Students in the school"
+ )]
+        [SwaggerResponse(200, "Successfully retrieved the paginated list of Students", typeof(PaginatedResponse<SelectStudentDTO>))]
+        [SwaggerResponse(404, "No students found")]
         [Produces("application/json")]
-
-        public IActionResult selectAllStudents()
+        public IActionResult SelectAllStudents([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var Students = _unit.UserReps.GetUsersWithRole("Student").Result.OfType<Student>().ToList();
-
-            if (!Students.Any()) return NotFound("There are not Students");
-
-            var StudentDTO = mapper.Map<List<SelectStudentDTO>>(Students);
-
-            return Ok(StudentDTO);
             
+            var students = _unit.UserReps.GetUsersWithRole("Student").Result.OfType<Student>().ToList();
+
+            if (!students.Any())
+                return NotFound("There are no Students");
+
+           
+            int totalCount = students.Count;
+            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var paginatedStudents = students
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+           
+            var studentDTOs = mapper.Map<List<SelectStudentDTO>>(paginatedStudents);
+
+           
+            var response = new PaginatedResponse<SelectStudentDTO>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Data = studentDTOs
+            };
+
+            return Ok(response);
         }
+
 
         [HttpGet("{id}")]
         [SwaggerOperation(

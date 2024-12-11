@@ -1,4 +1,5 @@
-﻿using Attendance_Student.DTOs.SubjectDTO;
+﻿using Attendance_Student.DTOs;
+using Attendance_Student.DTOs.SubjectDTO;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
@@ -22,25 +23,46 @@ namespace Attendance_Student.Controllers
         }
         [HttpGet]
         [SwaggerOperation
-            (
-            Summary = "Retrieves all Subjects",
-            Description = "Fetches a list of all Subjects in the school"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the list of subjects", typeof(List<SelectSubjectDTO>))]
-        [SwaggerResponse(404, "No classes found")]
+ (
+     Summary = "Retrieves all Subjects with pagination",
+     Description = "Fetches a paginated list of all Subjects in the school"
+ )]
+        [SwaggerResponse(200, "Successfully retrieved the paginated list of subjects", typeof(PaginatedResponse<SelectSubjectDTO>))]
+        [SwaggerResponse(404, "No subjects found")]
         [Produces("application/json")]
-
-        public async Task<IActionResult> selectAllSubjects()
+        public async Task<IActionResult> SelectAllSubjects([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+          
             List<Subject> subjects = await _unit.SubjectRepo.selectAll();
 
-            if (subjects.Count < 0) return NotFound("No subjects were found in the system. Please check again later.");
+            if (!subjects.Any())
+                return NotFound("No subjects were found in the system. Please check again later.");
 
-            var subjectDTO = mapper.Map<List<SelectSubjectDTO>>(subjects);
+           
+            int totalCount = subjects.Count;
+            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            return Ok(subjectDTO);
+            var paginatedSubjects = subjects
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
             
+            var subjectDTOs = mapper.Map<List<SelectSubjectDTO>>(paginatedSubjects);
+
+            
+            var response = new PaginatedResponse<SelectSubjectDTO>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Data = subjectDTOs
+            };
+
+            return Ok(response);
         }
+
 
         [HttpGet("{id:int}")]
         [SwaggerOperation(

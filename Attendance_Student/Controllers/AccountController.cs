@@ -104,7 +104,7 @@ namespace Attendance_Student.Controllers
 
             return Unauthorized("Invalid login attempt.");
         }
-
+        [Authorize]
         [HttpPost("change-password")]
         [Authorize]
         [SwaggerOperation(Summary = "Change user password", Description = "Allows an authenticated user to change their password.")]
@@ -128,7 +128,7 @@ namespace Attendance_Student.Controllers
 
             return BadRequest(result.Errors);
         }
-
+        [Authorize]
         [HttpPost("logout")]
         [Authorize]
         [SwaggerOperation(Summary = "User logout", Description = "Logs out the authenticated user.")]

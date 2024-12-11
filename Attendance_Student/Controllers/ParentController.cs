@@ -10,11 +10,13 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Attendance_Student.UnitOfWorks;
 using Attendance_Student.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Attendance_Student.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class ParentController : ControllerBase
     {
         UnitWork _unit;
@@ -68,7 +70,7 @@ namespace Attendance_Student.Controllers
             return Ok(response);
         }
 
-
+        [Authorize(Roles ="Parent")]
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retrieves a Parent by ID", Description = "Fetches a single Parent details based on its unique ID.")]
         [SwaggerResponse(200, "Successfully retrieved the Parent", typeof(ParentResponseDto))]
