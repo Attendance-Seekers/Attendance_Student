@@ -1,5 +1,6 @@
 ﻿using Attendance_Student.DTOs.ClassDTO;
 using Attendance_Student.DTOs.DepartmentDTO;
+using Attendance_Student.DTOs;
 using Attendance_Student.Models;
 using Attendance_Student.Repositories;
 using Attendance_Student.UnitOfWorks;
@@ -25,28 +26,49 @@ namespace Attendance_Student.Controllers
                 this.mapper = mapper;
                
             }
-            [HttpGet]
-            [SwaggerOperation(Summary = "Retrieves all Departments", Description = "Fetches a list of all Departments in the school")]
-            [SwaggerResponse(200, "Successfully retrieved the list of Departments", typeof(List<SelectDepartmentDTO>))]
-            [SwaggerResponse(404, "No Departments found")]
-            [Produces("application/json")]
+        [HttpGet]
+        [SwaggerOperation(Summary = "Retrieves all Departments with pagination", Description = "Fetches a paginated list of all Departments in the school")]
+        [SwaggerResponse(200, "Successfully retrieved the paginated list of Departments", typeof(PaginatedResponse<SelectDepartmentDTO>))]
+        [SwaggerResponse(404, "No Departments found")]
+        [Produces("application/json")]
+        public async Task<IActionResult> SelectAllDepartments([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            
+            List<Department> departments = await _unit.DepartmentRepo.selectAll();
 
-            public async Task<IActionResult> SelectAllDepartments()
+          
+            if (departments == null || departments.Count == 0)
             {
-                List<Department> Departments = await _unit.DepartmentRepo.selectAll();
-
-                if (Departments.Count < 0) return NotFound();
-                else
-                {
-
-                    var DepartmentDTO = mapper.Map<List<SelectDepartmentDTO>>(Departments);
-
-
-                    return Ok(DepartmentDTO);
-                }
+                return NotFound("No Departments found.");
             }
 
-            [HttpGet("{id}")]
+           
+            int totalCount = departments.Count;
+            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+           
+            var paginatedDepartments = departments
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+           
+            var departmentDTOs = mapper.Map<List<SelectDepartmentDTO>>(paginatedDepartments);
+
+           
+            var response = new PaginatedResponse<SelectDepartmentDTO>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Data = departmentDTOs
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id}")]
             [SwaggerOperation(Summary = "Retrieves a Department by ID", Description = "Fetches a single Department details based on its unique ID")]
             [SwaggerResponse(200, "Successfully retrieved the Department", typeof(SelectDepartmentDTO))]
             [SwaggerResponse(404, "Department not found")]

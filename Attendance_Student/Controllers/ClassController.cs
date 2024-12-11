@@ -24,26 +24,36 @@ namespace Attendance_Student.Controllers
             this.mapper = mapper;
         }
         [HttpGet]
-        [SwaggerOperation
-            (
-            Summary = "Retrieves all Classes",
-            Description = "Fetches a list of all Classes in the school"
-            )]
-        [SwaggerResponse(200, "Successfully retrieved the list of Classes", typeof(List<SelectClassDTO>))]
+        [SwaggerOperation(Summary = "Retrieves Paginated Classes", Description = "Fetches paginated list of Classes")]
+        [SwaggerResponse(200, "Successfully retrieved the list of Classes")]
         [SwaggerResponse(404, "No classes found")]
-        [Produces("application/json")]
-
-        public async Task<IActionResult> selectAllClasses()
+        public async Task<IActionResult> selectAllClasses(
+       [FromQuery] int page = 1,
+       [FromQuery] int pageSize = 10)
         {
             List<Class> classes = await _unit.ClassRepo.selectAll();
-           
-            if (classes.Count < 0) return NotFound("No classes found.");
 
-            var classDTO = mapper.Map<List<SelectClassesDTO>>(classes);   
-            return Ok(classDTO);
-            
+            if (classes.Count == 0) return NotFound("No classes found.");
+
+            var totalCount = classes.Count;
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var paginatedClasses = classes
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var classDTO = mapper.Map<List<SelectClassesDTO>>(paginatedClasses);
+
+            return Ok(new
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Classes = classDTO
+            });
         }
-
         [HttpGet("{id:int}")]
         [SwaggerOperation(Summary = "Retrieves a class by ID", Description = "Fetches a single class details based on its unique ID")]
         [SwaggerResponse(200, "Successfully retrieved the class", typeof(SelectClassDTO))]

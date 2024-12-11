@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Attendance_Student.UnitOfWorks;
+using Attendance_Student.DTOs;
 
 namespace Attendance_Student.Controllers
 {
@@ -29,22 +30,44 @@ namespace Attendance_Student.Controllers
 
         [HttpGet]
         [SwaggerOperation(
-      Summary = "Retrieves all Parents",
-      Description = "Fetches a list of all Parents in the school"
-  )]
-        [SwaggerResponse(200, "Successfully retrieved the list of Parents", typeof(List<ParentResponseDto>))]
+            Summary = "Retrieves all Parents with pagination",
+            Description = "Fetches a paginated list of all Parents in the school"
+        )]
+        [SwaggerResponse(200, "Successfully retrieved the paginated list of Parents", typeof(PaginatedResponse<ParentResponseDto>))]
         [SwaggerResponse(404, "No parents found")]
         [Produces("application/json")]
-        public IActionResult GetAllParents()
+        public IActionResult GetAllParents([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
+            
             var parents = _unit.UserReps.GetUsersWithRole("Parent").Result.OfType<Parent>().ToList();
 
             if (!parents.Any())
                 return NotFound("There are no Parents");
 
-            var parentDTOs = _mapper.Map<List<ParentResponseDto>>(parents);
-            return Ok(parentDTOs);
+           
+            int totalCount = parents.Count;
+            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var paginatedParents = parents
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+          
+            var parentDTOs = _mapper.Map<List<ParentResponseDto>>(paginatedParents);
+
+            var response = new PaginatedResponse<ParentResponseDto>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Data = parentDTOs
+            };
+
+            return Ok(response);
         }
+
 
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Retrieves a Parent by ID", Description = "Fetches a single Parent details based on its unique ID.")]

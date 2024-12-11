@@ -258,10 +258,10 @@ namespace Attendance_Student.Controllers
         }
 
 
-        [HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
-        [SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
+        //[HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
+        //[SwaggerOperation(Summary = "Get attendance report for a class", Description = "Retrieves attendance report for a specific class within a date range.")]
+        //[SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully.")]
+        //[SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found.")]
         //public async Task<IActionResult> GetAttendanceClassReport(int class_id, DateOnly start_date, DateOnly end_date)
         //{
         //    Class _class = await _unit.ClassRepo.selectById(class_id);
@@ -297,18 +297,48 @@ namespace Attendance_Student.Controllers
         //    return Ok(attendanceDTOs);
         //}
 
-        public async Task<IActionResult> GetAttendanceClassReport(int class_id, DateOnly start_date, DateOnly end_date)
+        [HttpGet("report/class/{class_id}/range/{start_date}/{end_date}")]
+        [SwaggerOperation(Summary = "Get paginated attendance report for a class", Description = "Retrieves paginated attendance report within a date range")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Attendance report retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "No attendance records found")]
+        public async Task<IActionResult> GetAttendanceClassReport(
+    int class_id,
+    DateOnly start_date,
+    DateOnly end_date,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10)
         {
             Class _class = await _unit.Context.Classes.FindAsync(class_id);
 
             if (_class == null) return BadRequest($"Class with ID {class_id} not found.");
-            List<Attendance> attendances = await _unit.Context.Attendances.Where(a => a.dateAttendance >= start_date && a.dateAttendance <= end_date && a.timeTable.class_id == class_id).ToListAsync();
-            if (!attendances.Any()) return NotFound("No attendance records found for the specified day.");
 
-            List<SelectAttendanceDTO> attendanceDTOs = _mapper.Map<List<SelectAttendanceDTO>>(attendances);
+            var attendancesQuery = _unit.Context.Attendances
+                .Where(a => a.dateAttendance >= start_date &&
+                            a.dateAttendance <= end_date &&
+                            a.timeTable.class_id == class_id);
 
+            var totalCount = await attendancesQuery.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-            return Ok(attendanceDTOs);
+            var attendances = await attendancesQuery
+                .OrderBy(a => a.dateAttendance)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!attendances.Any())
+                return NotFound("No attendance records found for the specified day.");
+
+            var attendanceDTOs = _mapper.Map<List<SelectAttendanceDTO>>(attendances);
+
+            return Ok(new
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Attendances = attendanceDTOs
+            });
         }
 
 
