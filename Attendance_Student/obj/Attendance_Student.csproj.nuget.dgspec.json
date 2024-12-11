@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {}
+    "C:\\Users\\sweet\\Desktop\\attendece\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {}
   },
   "projects": {
-    "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {
+    "C:\\Users\\sweet\\Desktop\\attendece\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+        "projectUniqueName": "C:\\Users\\sweet\\Desktop\\attendece\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
         "projectName": "Attendance_Student",
-        "projectPath": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
-        "packagesPath": "C:\\Users\\ahmed\\.nuget\\packages\\",
-        "outputPath": "D:\\projects_GitHub\\Attendance_Student\\Attendance_Student\\obj\\",
+        "projectPath": "C:\\Users\\sweet\\Desktop\\attendece\\Attendance_Student\\Attendance_Student\\Attendance_Student.csproj",
+        "packagesPath": "C:\\Users\\sweet\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\sweet\\Desktop\\attendece\\Attendance_Student\\Attendance_Student\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ahmed\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\sweet\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,6 +39,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -102,7 +108,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
