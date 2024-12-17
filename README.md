@@ -200,7 +200,11 @@ This project provided the team with hands-on experience in:
 - Enhancing scalability to support larger institutions.
 
 ---
+## Screenshots
+![screen1](https://github.com/user-attachments/assets/1c82fc58-dc14-4842-b872-6996012ad180)
+![screen2](https://github.com/user-attachments/assets/09a66098-0307-4c53-94b7-a0b39c1963d1)
 
+---
 ## Contact
 
 For more details, feel free to reach out to Us via LinkedIn 
